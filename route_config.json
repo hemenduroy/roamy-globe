@@ -1,0 +1,238 @@
+{
+  "rows": [
+    {
+      "loc1": "dekalb, IL",
+      "roamy": "manistee, MI",
+      "loc2": "eyjafjallajokull, Iceland",
+      "row": 0
+    },
+    {
+      "loc1": "",
+      "roamy": "",
+      "loc2": "",
+      "row": 1
+    },
+    {
+      "loc1": "copenhagen, Denmark",
+      "roamy": "l'ascension, Quebec",
+      "loc2": "north york, Ontario, Canada",
+      "row": 2
+    },
+    {
+      "loc1": "",
+      "roamy": "",
+      "loc2": "",
+      "row": 3
+    },
+    {
+      "loc1": "",
+      "roamy": "",
+      "loc2": "",
+      "row": 4
+    },
+    {
+      "loc1": "",
+      "roamy": "",
+      "loc2": "",
+      "row": 5
+    },
+    {
+      "loc1": "",
+      "roamy": "",
+      "loc2": "",
+      "row": 6
+    },
+    {
+      "loc1": "",
+      "roamy": "",
+      "loc2": "",
+      "row": 7
+    },
+    {
+      "loc1": "",
+      "roamy": "",
+      "loc2": "",
+      "row": 8
+    },
+    {
+      "loc1": "",
+      "roamy": "",
+      "loc2": "",
+      "row": 9
+    },
+    {
+      "loc1": "",
+      "roamy": "",
+      "loc2": "",
+      "row": 10
+    },
+    {
+      "loc1": "",
+      "roamy": "",
+      "loc2": "",
+      "row": 11
+    },
+    {
+      "loc1": "",
+      "roamy": "",
+      "loc2": "",
+      "row": 12
+    },
+    {
+      "loc1": "",
+      "roamy": "",
+      "loc2": "",
+      "row": 13
+    },
+    {
+      "loc1": "",
+      "roamy": "",
+      "loc2": "",
+      "row": 14
+    },
+    {
+      "loc1": "",
+      "roamy": "",
+      "loc2": "",
+      "row": 15
+    },
+    {
+      "loc1": "",
+      "roamy": "",
+      "loc2": "",
+      "row": 16
+    },
+    {
+      "loc1": "",
+      "roamy": "",
+      "loc2": "",
+      "row": 17
+    },
+    {
+      "loc1": "",
+      "roamy": "",
+      "loc2": "",
+      "row": 18
+    },
+    {
+      "loc1": "",
+      "roamy": "",
+      "loc2": "",
+      "row": 19
+    },
+    {
+      "loc1": "",
+      "roamy": "",
+      "loc2": "",
+      "row": 20
+    },
+    {
+      "loc1": "",
+      "roamy": "",
+      "loc2": "",
+      "row": 21
+    },
+    {
+      "loc1": "",
+      "roamy": "",
+      "loc2": "",
+      "row": 22
+    },
+    {
+      "loc1": "accra, Ghana",
+      "roamy": "nova russas, Brazil",
+      "loc2": "lima, Peru",
+      "row": 23
+    },
+    {
+      "loc1": "",
+      "roamy": "",
+      "loc2": "",
+      "row": 24
+    },
+    {
+      "loc1": "",
+      "roamy": "",
+      "loc2": "",
+      "row": 25
+    },
+    {
+      "loc1": "",
+      "roamy": "",
+      "loc2": "",
+      "row": 26
+    },
+    {
+      "loc1": "",
+      "roamy": "",
+      "loc2": "",
+      "row": 27
+    },
+    {
+      "loc1": "",
+      "roamy": "",
+      "loc2": "",
+      "row": 28
+    },
+    {
+      "loc1": "cairo, Egypt",
+      "roamy": "ambanja, Madagascar",
+      "loc2": "heard island, Australia",
+      "row": 29
+    },
+    {
+      "loc1": "",
+      "roamy": "",
+      "loc2": "",
+      "row": 30
+    },
+    {
+      "loc1": "",
+      "roamy": "",
+      "loc2": "",
+      "row": 31
+    },
+    {
+      "loc1": "",
+      "roamy": "",
+      "loc2": "",
+      "row": 32
+    },
+    {
+      "loc1": "",
+      "roamy": "",
+      "loc2": "",
+      "row": 33
+    },
+    {
+      "loc1": "",
+      "roamy": "",
+      "loc2": "",
+      "row": 34
+    },
+    {
+      "loc1": "",
+      "roamy": "",
+      "loc2": "",
+      "row": 35
+    },
+    {
+      "loc1": "",
+      "roamy": "",
+      "loc2": "",
+      "row": 36
+    },
+    {
+      "loc1": "",
+      "roamy": "",
+      "loc2": "",
+      "row": 37
+    },
+    {
+      "loc1": "",
+      "roamy": "",
+      "loc2": "",
+      "row": 38
+    }
+  ]
+}
