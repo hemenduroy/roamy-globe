@@ -309,15 +309,15 @@
         grid.appendChild(rowNum);
         const s1 = document.createElement("select");
         s1.id = "loc1_" + r;
-        s1.innerHTML = '<option value="">— select —</option>' + DATA.locs.map((l,i) => '<option value="'+i+'">'+escapeHtml(l.name)+'</option>').join("");
+        s1.innerHTML = '<option value=""></option>' + DATA.locs.map((l,i) => '<option value="'+i+'">'+escapeHtml(l.name)+'</option>').join("");
         grid.appendChild(s1);
         const s2 = document.createElement("select");
         s2.id = "roamy_" + r;
-        s2.innerHTML = '<option value="">— select —</option>' + DATA.roamy.map((l,i) => '<option value="'+i+'">'+escapeHtml(l.name)+'</option>').join("");
+        s2.innerHTML = '<option value=""></option>' + DATA.roamy.map((l,i) => '<option value="'+i+'">'+escapeHtml(l.name)+'</option>').join("");
         grid.appendChild(s2);
         const s3 = document.createElement("select");
         s3.id = "loc2_" + r;
-        s3.innerHTML = '<option value="">— select —</option>' + DATA.locs.map((l,i) => '<option value="'+i+'">'+escapeHtml(l.name)+'</option>').join("");
+        s3.innerHTML = '<option value=""></option>' + DATA.locs.map((l,i) => '<option value="'+i+'">'+escapeHtml(l.name)+'</option>').join("");
         grid.appendChild(s3);
         const clearBtn = document.createElement("button");
         clearBtn.className = "row-clear";
