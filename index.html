@@ -37,8 +37,6 @@
       <h2>41 × 3 triplets (loc | roamy | loc)</h2>
       <p style="font-size:11px;color:#888;margin:0 0 8px 0;">Loaded from route_config.json on refresh.</p>
       <div class="toolbar">
-        <button type="button" id="saveConfigBtn">Save (download route_config.json)</button>
-        <p class="hint">Save downloads the file. Replace locations/route_config.json with it, then refresh to load.</p>
         <p class="legend-123"><span><strong>1</strong> start</span><span><strong>2</strong> middle</span><span><strong>3</strong> end</span> (same on globe)</p>
       </div>
       <div class="grid" id="tripletGrid"></div>
@@ -329,35 +327,6 @@
         d.textContent = s;
         return d.innerHTML;
       }
-      function getConfig() {
-        var rows = [];
-        for (var r = 0; r < 41; r++) {
-          var s1 = document.getElementById("loc1_" + r), s2 = document.getElementById("roamy_" + r), s3 = document.getElementById("loc2_" + r);
-          var v1 = s1 ? s1.value : "", v2 = s2 ? s2.value : "", v3 = s3 ? s3.value : "";
-          rows.push({
-            row: r,
-            loc1: v1 === "" ? "" : DATA.locs[parseInt(v1,10)].name,
-            roamy: v2 === "" ? "" : DATA.roamy[parseInt(v2,10)].name,
-            loc2: v3 === "" ? "" : DATA.locs[parseInt(v3,10)].name
-          });
-        }
-        return { rows: rows };
-      }
-      function saveConfig() {
-        var json = JSON.stringify(getConfig(), null, 2);
-        var blob = new Blob([json], { type: "application/json" });
-        var url = URL.createObjectURL(blob);
-        var a = document.createElement("a");
-        a.href = url;
-        a.download = "route_config.json";
-        a.style.display = "none";
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      }
-      var saveBtn = document.getElementById("saveConfigBtn");
-      if (saveBtn) saveBtn.addEventListener("click", saveConfig);
       function loadConfig(obj) {
         var rows = obj.rows || [];
         var nameToLocIndex = {};
