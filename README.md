@@ -1,47 +1,31 @@
-# Roamy Globe
+# Roamy Stupid
 
-Interactive 3D globe showing route triplets (location → roamy → location). Built from [beast_puzzle/locations](https://github.com).
+Puzzle tools and 3D globe for the Beast hunt. Built from beast_puzzle/locations.
 
-**Live site:** https://hemenduroy.github.io/roamy-globe/
+**Live site:** https://hemenduroy.github.io/roamy-stupid/
 
 ---
 
-## Host on GitHub Pages (first-time setup)
+## Pages
 
-### 1. Push this folder to the repo
-
-Repo: [hemenduroy/roamy-globe](https://github.com/hemenduroy/roamy-globe)
-
-```bash
-cd roamy-globe   # or full path to this folder
-git init
-git add .
-git commit -m "Initial commit: route globe for GitHub Pages"
-git branch -M main
-git remote add origin git@github.com:hemenduroy/roamy-globe.git
-git push -u origin main
-```
-
-(Using SSH so you won’t be prompted for a password.)
-
-### 2. Turn on GitHub Pages
-
-- In the repo: **Settings** → **Pages**
-- **Source:** Deploy from a branch
-- **Branch:** `main` → **/ (root)** → Save
-- After a minute or two: **https://hemenduroy.github.io/roamy-globe/**
+- **Home** — links to Globe and Car grid variants
+- **Globe** — 41×3 route triplets (location → roamy → location) on a 3D globe
+- **Car grid variants** — Trips by Car grid transformations for puzzle solving
 
 ---
 
 ## Updating the site
 
-After changing the globe or config in `beast_puzzle/locations`:
+**Option A — Automatic:** Push to `beast_puzzle` (main). If the repo has a GitHub Action set up and the secret `ROAMY_STUPID_TOKEN` is configured, the action will sync and push to roamy-stupid so the page updates without running anything locally.
+
+**Option B — Manual:** From beast_puzzle repo root run:
 
 ```bash
-# From beast_puzzle repo root
 ./locations/sync_globe_site.sh
-cd roamy-globe
+cd roamy-stupid
 git add .
-git commit -m "Update globe"
+git commit -m "Update site"
 git push
 ```
+
+Repo: [hemenduroy/roamy-stupid](https://github.com/hemenduroy/roamy-stupid)

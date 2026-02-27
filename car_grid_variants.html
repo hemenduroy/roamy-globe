@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trips by Car — grid variants</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Georgia', serif; background: #1a1a1a; color: #e0e0e0; padding: 1rem; margin: 0; }
+    h1 { font-size: 1.2rem; color: #fff; margin-bottom: 0.5rem; }
+    .intro { font-size: 0.9rem; color: #888; margin-bottom: 1.5rem; }
+    section { margin-bottom: 2rem; }
+    section h2 { font-size: 1rem; color: #f0c050; margin-bottom: 0.5rem; border-bottom: 1px solid #444; padding-bottom: 4px; }
+    .grid-box { background: #252525; border: 1px solid #444; border-radius: 6px; padding: 10px 14px; display: inline-block; margin: 4px 0; }
+    .grid-box pre { margin: 0; font-family: 'Courier New', monospace; font-size: 13px; color: #f0c050; letter-spacing: 0.05em; }
+    .grid-box .muted { color: #666; }
+    table.grid { border-collapse: collapse; font-size: 13px; }
+    table.grid td { border: 1px solid #333; padding: 2px 6px; text-align: center; font-family: 'Courier New', monospace; color: #f0c050; }
+    table.grid td.phrase { text-align: right; color: #888; max-width: 200px; }
+    .letter { display: inline-block; width: 1.2em; text-align: center; }
+  </style>
+</head>
+<body>
+  <h1>Trips by Car — puzzle grid variants</h1>
+  <p class="intro">15 rows × 12 letters. Many common transformations below for you to scan for words or patterns.</p>
+  <div id="output"></div>
+
+  <script>
+    const rawLines = `Join us at BARODYNAMICS!
+See lovely EBULLIOSCOPE!
+Meet us at FURFURACEOUS!
+You'll like HAPAXANTHOUS!
+Get down to HEKISTOTHERM!
+Come to INCLINOMETER!
+Head off to MARIMBAPHONE!
+Return to NEBULOPHOBIA!
+Drop in on OCHROLEUCOUS!
+Stay at RECEPTACULAR!
+Take in RISORGIMENTO!
+Stop off at SALAMANDROID!
+Relax at SCAPULOMANCY!
+Encounter THEANTHROPIC!
+Hop over to ULTRAMONTANE!`;
+    const lines = rawLines.split('\n').filter(l => l.trim());
+    const words = lines.map(l => (l.match(/([A-Z]{12,})/) || [])[1]).filter(Boolean);
+    const R = words.length, C = 12;
+    const grid = words.map(w => w.split(''));
+
+    function pos(c) { return c ? (c.charCodeAt(0) - 65 + 1) : 0; }
+    function rot(c, n) { if (!c || c < 'A' || c > 'Z') return c; return String.fromCharCode(((c.charCodeAt(0) - 65 + n) % 26 + 26) % 26 + 65); }
+
+    const out = document.getElementById('output');
+
+    function add(title, body) {
+      const sec = document.createElement('section');
+      sec.innerHTML = '<h2>' + title + '</h2>' + body;
+      out.appendChild(sec);
+    }
+
+    function pre(t) {
+      return '<div class="grid-box"><pre>' + t.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</pre></div>';
+    }
+
+    // 1. Original grid
+    let s = grid.map((row, i) => row.join(' ')).join('\n');
+    add('1. Original (15×12)', pre(s));
+
+    // 2. First letters
+    const first = grid.map(r => r[0]).join('');
+    add('2. First letters (one per row)', pre(first + '\n  → ' + first.split('').map(c => pos(c)).join(',')));
+
+    // 3. Last letters
+    const last = grid.map(r => r[11]).join('');
+    add('3. Last letters', pre(last));
+
+    // 4. Columns (read each column top→bottom)
+    let cols = '';
+    for (let c = 0; c < C; c++) {
+      cols += 'Col ' + (c + 1) + ': ' + grid.map(r => r[c]).join('') + '\n';
+    }
+    add('4. Columns (read down)', pre(cols.trim()));
+
+    // 5. Columns as single string (column-major order)
+    let colMajor = '';
+    for (let c = 0; c < C; c++) for (let r = 0; r < R; r++) colMajor += grid[r][c];
+    add('5. Column-major read (all columns concatenated)', pre(colMajor));
+
+    // 6. Mirrored rows (each row reversed)
+    s = grid.map(r => r.slice().reverse().join('')).join('\n');
+    add('6. Mirrored (each row reversed)', pre(s));
+
+    // 7. ROT13
+    s = grid.map(r => r.map(c => rot(c, 13)).join('')).join('\n');
+    add('7. ROT13', pre(s));
+
+    // 8. Diagonal (row i, col i) — 12 letters
+    let diag = '';
+    for (let i = 0; i < Math.min(R, C); i++) diag += grid[i][i];
+    add('8. Main diagonal (row i, col i)', pre(diag));
+
+    // 9. Anti-diagonal (row i, col 11-i)
+    diag = '';
+    for (let i = 0; i < Math.min(R, C); i++) diag += grid[i][11 - i];
+    add('9. Anti-diagonal (row i, col 11−i)', pre(diag));
+
+    // 10. Letter at position (row index mod 12) in each word
+    let byRowPos = grid.map((r, i) => r[i % 12]).join('');
+    add('10. Letter at position (row mod 12) in each word', pre(byRowPos));
+
+    // 11. Letter at position (first letter value) in each word (1-based, wrap)
+    byRowPos = grid.map(r => { const p = pos(r[0]); const idx = (p % 12) || 12; return r[idx - 1]; }).join('');
+    add('11. Letter at position (first letter value) in each word', pre(byRowPos));
+
+    // 12. Even columns only (0,2,4,6,8,10)
+    s = grid.map(r => r.filter((_, c) => c % 2 === 0).join('')).join('\n');
+    add('12. Even columns only (6 letters per row)', pre(s));
+
+    // 13. Odd columns only
+    s = grid.map(r => r.filter((_, c) => c % 2 === 1).join('')).join('\n');
+    add('13. Odd columns only', pre(s));
+
+    // 14. Rows in reverse order (row 14..0)
+    s = grid.slice().reverse().map(r => r.join('')).join('\n');
+    add('14. Rows reversed (bottom to top)', pre(s));
+
+    // 15. First + last letter of each word
+    const firstLast = grid.map(r => r[0] + r[11]).join(' ');
+    add('15. First and last letter of each word', pre(firstLast));
+
+    // 16. Row sum (A=1) mod 26 as letter
+    const rowSumLetters = grid.map(r => {
+      const sum = r.reduce((a, c) => a + pos(c), 0);
+      return String.fromCharCode(65 + (sum % 26));
+    }).join('');
+    add('16. Row sum (A=1) mod 26 as letter', pre(rowSumLetters));
+
+    // 17. Second letter of each word
+    const second = grid.map(r => r[1]).join('');
+    add('17. Second letter of each word', pre(second));
+
+    // 18. Middle letter (position 6, 0-based) of each word
+    const mid = grid.map(r => r[6]).join('');
+    add('18. Middle letter (7th) of each word', pre(mid));
+
+    // 19. Caesar by row (row 0 +0, row 1 +1, … row 14 +14)
+    s = grid.map((r, i) => r.map(c => rot(c, i)).join('')).join('\n');
+    add('19. Caesar shift by row (row i + i)', pre(s));
+
+    // 20. Transpose: 12 rows, each row = one column (15 letters)
+    s = '';
+    for (let c = 0; c < C; c++) s += grid.map(r => r[c]).join('') + '\n';
+    add('20. Transpose (12 rows of 15 letters)', pre(s.trim()));
+
+    // 21. First letters as string + ROT13 of that
+    add('21. First letters + ROT13 of first letters', pre(first + '\n' + first.split('').map(c => rot(c, 13)).join('')));
+
+    // 22. Last letters + ROT13
+    add('22. Last letters + ROT13', pre(last + '\n' + last.split('').map(c => rot(c, 13)).join('')));
+
+    // 23. Word sums (A=1) for each row
+    const sums = grid.map(r => r.reduce((a, c) => a + pos(c), 0));
+    add('23. Word sum (A=1) per row', pre(sums.join(' ') + '\n  (124,134,154,...)'));
+
+    // 24. Read row by row as one string
+    const rowMajor = grid.map(r => r.join('')).join('');
+    add('24. Row-major (one long string)', pre(rowMajor));
+
+    // 25. Every 2nd letter (row-major)
+    let every2 = '';
+    for (let i = 0; i < rowMajor.length; i += 2) every2 += rowMajor[i];
+    add('25. Every 2nd letter (row-major)', pre(every2));
+
+    // 26. Every 3rd letter
+    every2 = '';
+    for (let i = 0; i < rowMajor.length; i += 3) every2 += rowMajor[i];
+    add('26. Every 3rd letter (row-major)', pre(every2));
+
+    // 27. Snake: row 0 L→R, row 1 R→L, row 2 L→R, ...
+    s = grid.map((r, i) => i % 2 ? r.slice().reverse().join('') : r.join('')).join('\n');
+    add('27. Snake (alternate rows reversed)', pre(s));
+
+    // 28. First letter of each word, then second, then third... (column of firsts, column of seconds, ...)
+    s = '';
+    for (let c = 0; c < C; c++) s += grid.map(r => r[c]).join('') + '\n';
+    add('28. Column c = letter c of each word (same as 4)', pre(s.trim()));
+
+    // 29. Sum of first letters (15 letters)
+    const sumFirst = grid.map(r => pos(r[0])).reduce((a, b) => a + b, 0);
+    add('29. Sum of first letters (15 rows)', pre(String(sumFirst) + ' (total)'));
+
+    // 30. Position 1,2,3,4,5,6,7,8,9,10,11,12 of each word as 12 “rows”
+    s = '';
+    for (let pos = 0; pos < 12; pos++) s += grid.map(r => r[pos]).join('') + '\n';
+    add('30. Row k = letter position k from each word (12 rows of 15)', pre(s.trim()));
+
+    // 31. Spiral read (outer in)
+    let spiral = '';
+    let r0 = 0, r1 = R - 1, c0 = 0, c1 = C - 1;
+    while (r0 <= r1 && c0 <= c1) {
+      for (let c = c0; c <= c1; c++) spiral += grid[r0][c];
+      r0++;
+      for (let r = r0; r <= r1; r++) spiral += grid[r][c1];
+      c1--;
+      if (r0 <= r1) { for (let c = c1; c >= c0; c--) spiral += grid[r1][c]; r1--; }
+      if (c0 <= c1) { for (let r = r1; r >= r0; r--) spiral += grid[r][c0]; c0++; }
+    }
+    add('31. Spiral read (outer in)', pre(spiral));
+
+    // 32. First letters as numbers then (value mod 26) as letter
+    const firstNum = grid.map(r => pos(r[0]));
+    const firstAsLetter = firstNum.map(n => String.fromCharCode(64 + (n % 26 || 26))).join('');
+    add('32. First letters A=1 then (mod 26) as letter', pre(firstNum.join(',') + '\n  -> ' + firstAsLetter));
+
+    // 33. ROT15 (Car = 15 rows)
+    s = grid.map(r => r.map(c => rot(c, 15)).join('')).join('\n');
+    add('33. ROT15 (full grid)', pre(s));
+
+    // 34. Letters at positions 1,5,9 of each word
+    const p159 = grid.map(r => r[0] + r[4] + r[8]).join(' ');
+    add('34. Positions 1, 5, 9 of each word', pre(p159));
+
+    // 35. Columns in reverse order (col 12 down, then col 11, ...)
+    s = '';
+    for (let c = C - 1; c >= 0; c--) s += grid.map(r => r[c]).join('') + '\n';
+    add('35. Columns reversed (12..1)', pre(s.trim()));
+  </script>
+</body>
+</html>
