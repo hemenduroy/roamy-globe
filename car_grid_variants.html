@@ -223,6 +223,965 @@ Hop over to ULTRAMONTANE!`;
     s = '';
     for (let c = C - 1; c >= 0; c--) s += grid.map(r => r[c]).join('') + '\n';
     add('35. Columns reversed (12..1)', pre(s.trim()));
+
+    // ─── PHRASE DATA ───
+    const phrases = lines.map(l => l.replace(/\s*[A-Z]{12,}!?\s*$/, '').trim());
+    const phraseWordCounts = phrases.map(p => p.split(/\s+/).length);
+    const phraseInitials = phrases.map(p => p.split(/\s+/).map(w => w[0].toUpperCase()).join(''));
+    const phraseCharLengths = phrases.map(p => p.replace(/\s/g, '').length);
+    const phraseFullLengths = phrases.map(p => p.length);
+
+    // Helper: vowel check
+    function isVowel(c) { return 'AEIOU'.includes(c); }
+    // Helper: scrabble tile values
+    function scrab(c) { return {A:1,B:3,C:3,D:2,E:1,F:4,G:2,H:4,I:1,J:8,K:5,L:1,M:3,N:1,O:1,P:3,Q:10,R:1,S:1,T:1,U:1,V:4,W:4,X:8,Y:4,Z:10}[c]||0; }
+    // Helper: phone keypad digit
+    function phone(c) { return {A:2,B:2,C:2,D:3,E:3,F:3,G:4,H:4,I:4,J:5,K:5,L:5,M:6,N:6,O:6,P:7,Q:7,R:7,S:7,T:8,U:8,V:8,W:9,X:9,Y:9,Z:9}[c]||0; }
+
+    // 36. Atbash cipher (A↔Z, B↔Y, …)
+    s = grid.map(r => r.map(c => String.fromCharCode(90 - (c.charCodeAt(0) - 65))).join('')).join('\n');
+    add('36. Atbash (A↔Z, B↔Y, …)', pre(s));
+
+    // 37. Caesar shift by column (col 0 +0, col 1 +1, …)
+    s = grid.map(r => r.map((c, ci) => rot(c, ci)).join('')).join('\n');
+    add('37. Caesar shift by column (col c + c)', pre(s));
+
+    // 38. Caesar shift by column (descending: col 0 +11, col 1 +10, …)
+    s = grid.map(r => r.map((c, ci) => rot(c, 11 - ci)).join('')).join('\n');
+    add('38. Caesar shift by column (col c + (11−c))', pre(s));
+
+    // 39. ROT by row + column (row i col j → shift i+j)
+    s = grid.map((r, ri) => r.map((c, ci) => rot(c, ri + ci)).join('')).join('\n');
+    add('39. Caesar shift (row+col)', pre(s));
+
+    // 40. ROT each letter by its own A=1 value
+    s = grid.map(r => r.map(c => rot(c, pos(c))).join('')).join('\n');
+    add('40. ROT each letter by its own value (A→B, B→D, …)', pre(s));
+
+    // 41. Vigenère with key "CAR"
+    {
+      const key = 'CAR';
+      s = grid.map((r, ri) => r.map((c, ci) => rot(c, pos(key[(ri * C + ci) % key.length]))).join('')).join('\n');
+      add('41. Vigenère with key "CAR"', pre(s));
+    }
+
+    // 42. Vigenère with key "BEAST"
+    {
+      const key = 'BEAST';
+      s = grid.map((r, ri) => r.map((c, ci) => rot(c, pos(key[(ri * C + ci) % key.length]))).join('')).join('\n');
+      add('42. Vigenère with key "BEAST"', pre(s));
+    }
+
+    // 43. Vigenère with key "MRBEAST"
+    {
+      const key = 'MRBEAST';
+      s = grid.map((r, ri) => r.map((c, ci) => rot(c, pos(key[(ri * C + ci) % key.length]))).join('')).join('\n');
+      add('43. Vigenère with key "MRBEAST"', pre(s));
+    }
+
+    // 44. Phrase word-count as index into each word (1-based)
+    {
+      const ext = grid.map((r, i) => {
+        const idx = phraseWordCounts[i];
+        return { idx, letter: r[idx - 1] || '?' };
+      });
+      add('44. Index by phrase word-count', pre(
+        ext.map((e, i) => 'Row ' + (i+1) + ': word-ct=' + phraseWordCounts[i] + ' → letter ' + phraseWordCounts[i] + ' = ' + e.letter).join('\n') +
+        '\n  → ' + ext.map(e => e.letter).join('')
+      ));
+    }
+
+    // 45. Phrase character-length (no spaces) as index into word
+    {
+      const ext = grid.map((r, i) => {
+        const idx = (phraseCharLengths[i] % 12) || 12;
+        return r[idx - 1] || '?';
+      });
+      add('45. Index by phrase char-length (no spaces, mod 12)', pre(
+        grid.map((r, i) => phrases[i] + ' → len=' + phraseCharLengths[i] + ' mod12=' + ((phraseCharLengths[i]%12)||12) + ' → ' + ext[i]).join('\n') +
+        '\n  → ' + ext.join('')
+      ));
+    }
+
+    // 46. Phrase full-length (with spaces) as index
+    {
+      const ext = grid.map((r, i) => {
+        const idx = (phraseFullLengths[i] % 12) || 12;
+        return r[idx - 1] || '?';
+      });
+      add('46. Index by phrase length (with spaces, mod 12)', pre(
+        grid.map((r, i) => phrases[i] + ' → len=' + phraseFullLengths[i] + ' mod12=' + ((phraseFullLengths[i]%12)||12) + ' → ' + ext[i]).join('\n') +
+        '\n  → ' + ext.join('')
+      ));
+    }
+
+    // 47. Phrase initials (acrostic of phrase words)
+    add('47. Phrase initials', pre(
+      phrases.map((p, i) => p + ' → ' + phraseInitials[i]).join('\n') +
+      '\n  → ' + phraseInitials.join(' ')
+    ));
+
+    // 48. Index by first letter of phrase's first word
+    {
+      const ext = grid.map((r, i) => {
+        const fl = phrases[i][0].toUpperCase();
+        const idx = (pos(fl) % 12) || 12;
+        return { fl, idx, letter: r[idx - 1] };
+      });
+      add('48. Index by first letter of phrase (A=1, mod 12)', pre(
+        ext.map((e, i) => phrases[i][0] + '=' + pos(e.fl) + ' mod12=' + e.idx + ' → ' + e.letter).join('\n') +
+        '\n  → ' + ext.map(e => e.letter).join('')
+      ));
+    }
+
+    // 49. Index by LAST letter of phrase's last word (before the capital word)
+    {
+      const ext = grid.map((r, i) => {
+        const pWords = phrases[i].split(/\s+/);
+        const lastWord = pWords[pWords.length - 1];
+        const ll = lastWord[lastWord.length - 1].toUpperCase();
+        const idx = (pos(ll) % 12) || 12;
+        return { ll, idx, letter: r[idx - 1] };
+      });
+      add('49. Index by last letter of phrase', pre(
+        ext.map((e, i) => e.ll + '=' + pos(e.ll) + ' mod12=' + e.idx + ' → ' + e.letter).join('\n') +
+        '\n  → ' + ext.map(e => e.letter).join('')
+      ));
+    }
+
+    // 50. Vowels only from each word
+    s = grid.map(r => r.filter(isVowel).join('')).join('\n');
+    add('50. Vowels only', pre(s));
+
+    // 51. Consonants only from each word
+    s = grid.map(r => r.filter(c => !isVowel(c)).join('')).join('\n');
+    add('51. Consonants only', pre(s));
+
+    // 52. Vowel positions (1-based) in each word
+    {
+      const vpos = grid.map(r => r.map((c, i) => isVowel(c) ? (i+1) : null).filter(x => x !== null));
+      add('52. Vowel positions (1-based)', pre(
+        vpos.map((p, i) => words[i] + ' → ' + p.join(',')).join('\n')
+      ));
+    }
+
+    // 53. Vowel count per row → index into word
+    {
+      const ext = grid.map(r => {
+        const vc = r.filter(isVowel).length;
+        const idx = (vc % 12) || 12;
+        return { vc, letter: r[idx - 1] };
+      });
+      add('53. Index by vowel count per row', pre(
+        ext.map((e, i) => words[i] + ' vowels=' + e.vc + ' → pos ' + ((e.vc % 12) || 12) + ' = ' + e.letter).join('\n') +
+        '\n  → ' + ext.map(e => e.letter).join('')
+      ));
+    }
+
+    // 54. Consonant count per row → index into word
+    {
+      const ext = grid.map(r => {
+        const cc = r.filter(c => !isVowel(c)).length;
+        const idx = (cc % 12) || 12;
+        return { cc, letter: r[idx - 1] };
+      });
+      add('54. Index by consonant count per row', pre(
+        ext.map((e, i) => words[i] + ' cons=' + e.cc + ' → pos ' + ((e.cc % 12) || 12) + ' = ' + e.letter).join('\n') +
+        '\n  → ' + ext.map(e => e.letter).join('')
+      ));
+    }
+
+    // 55. Binary: vowel=1 consonant=0 → decimal → mod 26 → letter
+    {
+      const ext = grid.map(r => {
+        const bits = r.map(c => isVowel(c) ? '1' : '0').join('');
+        const dec = parseInt(bits, 2);
+        return { bits, dec, letter: String.fromCharCode(65 + (dec % 26)) };
+      });
+      add('55. Binary (vowel=1, cons=0) → decimal mod 26 → letter', pre(
+        ext.map((e, i) => e.bits + ' = ' + e.dec + ' mod26 = ' + e.letter).join('\n') +
+        '\n  → ' + ext.map(e => e.letter).join('')
+      ));
+    }
+
+    // 56. Phone keypad digits for each row
+    s = grid.map(r => r.map(phone).join('')).join('\n');
+    add('56. Phone keypad digits', pre(s));
+
+    // 57. Scrabble tile values per row, total per row
+    {
+      const ext = grid.map(r => {
+        const vals = r.map(scrab);
+        const total = vals.reduce((a, b) => a + b, 0);
+        return { vals, total };
+      });
+      add('57. Scrabble values per row', pre(
+        ext.map((e, i) => words[i] + ' → ' + e.vals.join(',') + ' = ' + e.total).join('\n') +
+        '\n  totals: ' + ext.map(e => e.total).join(',')
+      ));
+    }
+
+    // 58. Scrabble total mod 26 → letter for each row
+    {
+      const ext = grid.map(r => {
+        const total = r.map(scrab).reduce((a, b) => a + b, 0);
+        return String.fromCharCode(65 + (total % 26));
+      });
+      add('58. Scrabble total mod 26 → letter', pre(ext.join('')));
+    }
+
+    // 59. Alphabetically sorted rows
+    s = grid.map(r => r.slice().sort().join('')).join('\n');
+    add('59. Each row sorted alphabetically', pre(s));
+
+    // 60. Unique letters per row (in order of first appearance)
+    s = grid.map(r => [...new Set(r)].join('')).join('\n');
+    add('60. Unique letters per row (first-appearance order)', pre(s));
+
+    // 61. Duplicate letters per row (letters appearing >1 time)
+    {
+      s = grid.map(r => {
+        const counts = {};
+        r.forEach(c => counts[c] = (counts[c] || 0) + 1);
+        return Object.keys(counts).filter(c => counts[c] > 1).sort().join('') + ' (' + Object.entries(counts).filter(([,v]) => v > 1).map(([k,v]) => k + '×' + v).join(',') + ')';
+      }).join('\n');
+      add('61. Repeated letters per row', pre(s));
+    }
+
+    // 62. Missing alphabet letters per row
+    {
+      s = grid.map((r, i) => {
+        const present = new Set(r);
+        const missing = [];
+        for (let c = 65; c <= 90; c++) if (!present.has(String.fromCharCode(c))) missing.push(String.fromCharCode(c));
+        return words[i] + ' missing: ' + missing.join('');
+      }).join('\n');
+      add('62. Missing alphabet letters per row', pre(s));
+    }
+
+    // 63. Difference cipher (letter[i+1] − letter[i] mod 26)
+    {
+      s = grid.map(r => {
+        const diffs = [];
+        for (let i = 0; i < r.length - 1; i++) {
+          const d = ((pos(r[i+1]) - pos(r[i])) % 26 + 26) % 26;
+          diffs.push(String.fromCharCode(65 + d));
+        }
+        return diffs.join('');
+      }).join('\n');
+      add('63. Difference cipher (adjacent letters mod 26, 11 letters/row)', pre(s));
+    }
+
+    // 64. Pair-sum cipher: letters 1+2, 3+4, 5+6, … (mod 26)
+    {
+      s = grid.map(r => {
+        let out = '';
+        for (let i = 0; i < r.length; i += 2) {
+          const sum = (pos(r[i]) + pos(r[i+1]) - 2) % 26;
+          out += String.fromCharCode(65 + sum);
+        }
+        return out;
+      }).join('\n');
+      add('64. Pair-sum (letters 1+2, 3+4, … mod 26)', pre(s));
+    }
+
+    // 65. XOR adjacent rows (row[i] XOR row[i+1], 14 result rows)
+    {
+      s = '';
+      for (let i = 0; i < R - 1; i++) {
+        s += grid[i].map((c, j) => {
+          const v = ((pos(c) - 1) ^ (pos(grid[i+1][j]) - 1)) % 26;
+          return String.fromCharCode(65 + ((v + 26) % 26));
+        }).join('') + '\n';
+      }
+      add('65. XOR adjacent rows (14 rows)', pre(s.trim()));
+    }
+
+    // 66. Subtract adjacent rows (row[i+1] − row[i] mod 26)
+    {
+      s = '';
+      for (let i = 0; i < R - 1; i++) {
+        s += grid[i].map((c, j) => {
+          const d = ((pos(grid[i+1][j]) - pos(c)) % 26 + 26) % 26;
+          return String.fromCharCode(65 + d);
+        }).join('') + '\n';
+      }
+      add('66. Subtract adjacent rows (row[i+1]−row[i] mod 26)', pre(s.trim()));
+    }
+
+    // 67. All diagonals ↘ (top-left to bottom-right, all offsets)
+    {
+      const allDiag = [];
+      for (let start = -(R-1); start < C; start++) {
+        let d = '';
+        for (let r = 0; r < R; r++) {
+          const c = start + r;
+          if (c >= 0 && c < C) d += grid[r][c];
+        }
+        if (d.length >= 3) allDiag.push(d);
+      }
+      add('67. All ↘ diagonals (length ≥ 3)', pre(allDiag.map((d, i) => 'D' + i + ': ' + d).join('\n')));
+    }
+
+    // 68. All diagonals ↙ (top-right to bottom-left, all offsets)
+    {
+      const allDiag = [];
+      for (let start = 0; start < C + R - 1; start++) {
+        let d = '';
+        for (let r = 0; r < R; r++) {
+          const c = start - r;
+          if (c >= 0 && c < C) d += grid[r][c];
+        }
+        if (d.length >= 3) allDiag.push(d);
+      }
+      add('68. All ↙ diagonals (length ≥ 3)', pre(allDiag.map((d, i) => 'D' + i + ': ' + d).join('\n')));
+    }
+
+    // 69. Checkerboard A (row+col even)
+    {
+      let a = '', b = '';
+      for (let r = 0; r < R; r++) {
+        for (let c = 0; c < C; c++) {
+          if ((r + c) % 2 === 0) { a += grid[r][c]; } else { b += grid[r][c]; }
+        }
+      }
+      add('69. Checkerboard A (row+col even)', pre(a));
+      add('70. Checkerboard B (row+col odd)', pre(b));
+    }
+
+    // 71. Rail fence cipher (2 rails)
+    {
+      const flat = rowMajor;
+      let rail1 = '', rail2 = '';
+      for (let i = 0; i < flat.length; i++) {
+        if (i % 2 === 0) rail1 += flat[i]; else rail2 += flat[i];
+      }
+      add('71. Rail fence (2 rails)', pre('Rail 1: ' + rail1 + '\nRail 2: ' + rail2 + '\nDecoded: ' + rail1 + rail2));
+    }
+
+    // 72. Rail fence cipher (3 rails)
+    {
+      const flat = rowMajor;
+      const rails = ['', '', ''];
+      let dir = 1, r = 0;
+      for (let i = 0; i < flat.length; i++) {
+        rails[r] += flat[i];
+        if (r === 0) dir = 1; else if (r === 2) dir = -1;
+        r += dir;
+      }
+      add('72. Rail fence (3 rails)', pre(rails.map((r, i) => 'Rail ' + (i+1) + ': ' + r).join('\n') + '\nDecoded: ' + rails.join('')));
+    }
+
+    // 73. Word sum → index into that word (sum mod 12)
+    {
+      const ext = grid.map(r => {
+        const sum = r.reduce((a, c) => a + pos(c), 0);
+        const idx = (sum % 12) || 12;
+        return { sum, idx, letter: r[idx - 1] };
+      });
+      add('73. Word sum mod 12 → index into word', pre(
+        ext.map((e, i) => words[i] + ' sum=' + e.sum + ' mod12=' + e.idx + ' → ' + e.letter).join('\n') +
+        '\n  → ' + ext.map(e => e.letter).join('')
+      ));
+    }
+
+    // 74. Word sum mod 26 → letter (direct, not from word)
+    {
+      const ext = grid.map(r => {
+        const sum = r.reduce((a, c) => a + pos(c), 0);
+        return String.fromCharCode(65 + (sum % 26));
+      });
+      add('74. Word sum mod 26 → letter (freestanding)', pre(ext.join('')));
+    }
+
+    // 75. ROT each row by its word-sum mod 26
+    {
+      s = grid.map(r => {
+        const sum = r.reduce((a, c) => a + pos(c), 0);
+        return r.map(c => rot(c, sum)).join('');
+      }).join('\n');
+      add('75. ROT each row by its word-sum', pre(s));
+    }
+
+    // 76. ROT each letter by its column position (1-based: col1 +1, col2 +2, …)
+    s = grid.map(r => r.map((c, ci) => rot(c, ci + 1)).join('')).join('\n');
+    add('76. ROT by column (1-based: col1 +1, col2 +2, …)', pre(s));
+
+    // 77. ROT each letter BACKWARD by its column (col1 −1, col2 −2, …)
+    s = grid.map(r => r.map((c, ci) => rot(c, -(ci + 1))).join('')).join('\n');
+    add('77. ROT backward by column (col1 −1, col2 −2, …)', pre(s));
+
+    // 78. ROT each letter by row number (1-based: row1 +1, row2 +2, …)
+    s = grid.map((r, ri) => r.map(c => rot(c, ri + 1)).join('')).join('\n');
+    add('78. ROT by row (1-based: row1 +1, row2 +2, …)', pre(s));
+
+    // 79. ROT each letter backward by row
+    s = grid.map((r, ri) => r.map(c => rot(c, -(ri + 1))).join('')).join('\n');
+    add('79. ROT backward by row (row1 −1, row2 −2, …)', pre(s));
+
+    // 80. Nth letter of Nth word (1st of word1, 2nd of word2, …) then cycle
+    {
+      const ext = grid.map((r, i) => r[i % 12]);
+      add('80. Nth letter of Nth word (pos = row# mod 12, 0-based)', pre(ext.join('') + '\n' + ext.map((c, i) => 'Row' + (i+1) + '[' + (i%12) + ']=' + c).join('  ')));
+    }
+
+    // 81. Reverse-Nth: 12th of word1, 11th of word2, …
+    {
+      const ext = grid.map((r, i) => r[(11 - (i % 12))]);
+      add('81. Reverse-Nth (12−row mod 12)', pre(ext.join('')));
+    }
+
+    // 82. Row number as index (row 1 → pos 1, row 2 → pos 2, …, row 13 → pos 1, etc.)
+    {
+      const ext = grid.map((r, i) => {
+        const idx = ((i + 1) % 12) || 12;
+        return { idx, letter: r[idx - 1] };
+      });
+      add('82. Row number as index (1-based, mod 12)', pre(
+        ext.map((e, i) => 'Row ' + (i+1) + ' → pos ' + e.idx + ' = ' + e.letter).join('\n') +
+        '\n  → ' + ext.map(e => e.letter).join('')
+      ));
+    }
+
+    // 83. Perimeter letters (border of the 15×12 grid)
+    {
+      let perim = '';
+      perim += grid[0].join('');
+      for (let r = 1; r < R - 1; r++) perim += grid[r][C - 1];
+      perim += grid[R - 1].slice().reverse().join('');
+      for (let r = R - 2; r >= 1; r--) perim += grid[r][0];
+      add('83. Perimeter (clockwise from top-left)', pre(perim));
+    }
+
+    // 84. Inner rectangle (rows 1–13, cols 1–10, i.e. remove border)
+    {
+      s = '';
+      for (let r = 1; r < R - 1; r++) s += grid[r].slice(1, C - 1).join('') + '\n';
+      add('84. Inner rectangle (border removed, 13×10)', pre(s.trim()));
+    }
+
+    // 85. Center column (col 6, 0-based = 7th letter)
+    add('85. Center column (col 6, 0-based)', pre(grid.map(r => r[5]).join('') + ' and ' + grid.map(r => r[6]).join('')));
+
+    // 86. Zigzag read across rows
+    {
+      let zz = '';
+      for (let c = 0; c < C; c++) {
+        if (c % 2 === 0) { for (let r = 0; r < R; r++) zz += grid[r][c]; }
+        else { for (let r = R - 1; r >= 0; r--) zz += grid[r][c]; }
+      }
+      add('86. Zigzag (col0 down, col1 up, col2 down, …)', pre(zz));
+    }
+
+    // 87. Knight's tour extraction (from top-left, +2 row +1 col, wrapping)
+    {
+      let kt = '';
+      let kr = 0, kc = 0;
+      const visited = new Set();
+      for (let i = 0; i < R * C; i++) {
+        const key = kr + ',' + kc;
+        if (visited.has(key)) break;
+        visited.add(key);
+        kt += grid[kr][kc];
+        kr = (kr + 2) % R;
+        kc = (kc + 1) % C;
+      }
+      add('87. Knight-step read (+2row, +1col, wrapping)', pre(kt));
+    }
+
+    // 88. Every 5th letter (row-major)
+    {
+      let e5 = '';
+      for (let i = 0; i < rowMajor.length; i += 5) e5 += rowMajor[i];
+      add('88. Every 5th letter (row-major)', pre(e5));
+    }
+
+    // 89. Every 7th letter
+    {
+      let e7 = '';
+      for (let i = 0; i < rowMajor.length; i += 7) e7 += rowMajor[i];
+      add('89. Every 7th letter (row-major)', pre(e7));
+    }
+
+    // 90. Every 12th letter (row-major) — should pick same position from each word
+    {
+      let e12 = '';
+      for (let i = 0; i < rowMajor.length; i += 12) e12 += rowMajor[i];
+      add('90. Every 12th letter (= first letter of each word)', pre(e12));
+    }
+
+    // 91. Every 13th letter
+    {
+      let e13 = '';
+      for (let i = 0; i < rowMajor.length; i += 13) e13 += rowMajor[i];
+      add('91. Every 13th letter (row-major)', pre(e13));
+    }
+
+    // 92. Every 15th letter
+    {
+      let e15 = '';
+      for (let i = 0; i < rowMajor.length; i += 15) e15 += rowMajor[i];
+      add('92. Every 15th letter (row-major)', pre(e15));
+    }
+
+    // 93. Groups of 3 columns summed → letters
+    {
+      s = grid.map(r => {
+        let out = '';
+        for (let i = 0; i < 12; i += 3) {
+          const sum = pos(r[i]) + pos(r[i+1]) + pos(r[i+2]);
+          out += String.fromCharCode(65 + (sum % 26)) + ' ';
+        }
+        return out.trim();
+      }).join('\n');
+      add('93. Triplet column sums (cols 1-3, 4-6, 7-9, 10-12) mod 26', pre(s));
+    }
+
+    // 94. Groups of 2 columns → letter
+    {
+      s = grid.map(r => {
+        let out = '';
+        for (let i = 0; i < 12; i += 2) {
+          const sum = pos(r[i]) + pos(r[i+1]);
+          out += String.fromCharCode(65 + ((sum - 2) % 26)) + ' ';
+        }
+        return out.trim();
+      }).join('\n');
+      add('94. Pair column sums (cols 1-2, 3-4, …) mod 26', pre(s));
+    }
+
+    // 95. Subtract pairs (col1−col2, col3−col4, …) mod 26
+    {
+      s = grid.map(r => {
+        let out = '';
+        for (let i = 0; i < 12; i += 2) {
+          const d = ((pos(r[i]) - pos(r[i+1])) % 26 + 26) % 26;
+          out += String.fromCharCode(65 + d);
+        }
+        return out;
+      }).join('\n');
+      add('95. Pair differences (col1−col2, col3−col4, …) mod 26', pre(s));
+    }
+
+    // 96. Letter frequency across entire 15×12 grid
+    {
+      const freq = {};
+      grid.forEach(r => r.forEach(c => freq[c] = (freq[c] || 0) + 1));
+      const sorted = Object.entries(freq).sort((a, b) => b[1] - a[1]);
+      add('96. Letter frequency (15×12 = 180 letters)', pre(
+        sorted.map(([c, n]) => c + ': ' + n + ' ' + '█'.repeat(n)).join('\n') +
+        '\n\nLetters NOT in grid: ' +
+        'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').filter(c => !freq[c]).join(',')
+      ));
+    }
+
+    // 97. Double letters (consecutive same letter in each word)
+    {
+      const dubs = grid.map((r, i) => {
+        const pairs = [];
+        for (let j = 0; j < r.length - 1; j++) {
+          if (r[j] === r[j + 1]) pairs.push(r[j] + r[j + 1] + '@' + (j + 1));
+        }
+        return words[i] + ': ' + (pairs.length ? pairs.join(', ') : '(none)');
+      });
+      add('97. Double letters in each word', pre(dubs.join('\n')));
+    }
+
+    // 98. Shared letters between adjacent rows
+    {
+      const shared = [];
+      for (let i = 0; i < R - 1; i++) {
+        const s1 = new Set(grid[i]);
+        const common = grid[i + 1].filter(c => s1.has(c));
+        const uniq = [...new Set(common)].sort().join('');
+        shared.push('Rows ' + (i + 1) + '&' + (i + 2) + ': ' + uniq);
+      }
+      add('98. Shared letters between adjacent rows', pre(shared.join('\n')));
+    }
+
+    // 99. Column-wise alphabetical rank (for each column, rank letters 1–15)
+    {
+      s = '';
+      for (let c = 0; c < C; c++) {
+        const col = grid.map(r => r[c]);
+        const sorted = col.slice().sort();
+        const ranks = col.map(ch => sorted.indexOf(ch) + 1);
+        s += 'Col ' + (c + 1) + ': ' + ranks.join(',') + '\n';
+      }
+      add('99. Column-wise rank (1–15 per column)', pre(s.trim()));
+    }
+
+    // 100. Row-wise alphabetical rank (for each row, rank letters 1–12)
+    {
+      s = grid.map((r, i) => {
+        const sorted = r.slice().sort();
+        const ranks = r.map(ch => sorted.indexOf(ch) + 1);
+        return 'Row ' + (i + 1) + ': ' + ranks.join(',');
+      }).join('\n');
+      add('100. Row-wise rank (1–12 per row)', pre(s));
+    }
+
+    // 101. Hidden words: scan all row strings for common 3+ letter English words
+    {
+      const commonWords = ['THE','AND','FOR','ARE','BUT','NOT','YOU','ALL','CAN','HER','WAS','ONE','OUR','OUT','HAS','HIS','HOW','MAN','NEW','NOW','OLD','SEE','WAY','WHO','BOY','DID','GET','HIM','LET','SAY','SHE','TOO','USE','DAD','MOM','CAR','RUN','TEN','TOP','HAD','HOT','OIL','SIT','RED','TIN','ACE','AGE','AID','AIM','AIR','ARC','ARM','ART','ASH','ATE','BAD','BAG','BAN','BAR','BAT','BED','BIG','BIT','BOW','BOX','BUS','BUY','COP','COT','CUP','CUT','DIG','DOG','DOT','DRY','EAR','EAT','END','ERA','EVE','EYE','FAN','FAR','FAT','FEW','FIG','FIN','FIT','FLY','FOG','FUN','FUR','GAP','GAS','GOD','GUN','GUT','GUY','HAM','HAT','HEN','HID','HIP','HIT','HOP','HUG','ICE','ILL','INK','INN','ION','IRE','IRK','JAM','JAR','JAW','JET','JOB','JOG','JOY','KEY','KID','KIT','LAP','LAW','LAY','LEG','LID','LIE','LIP','LOG','LOT','LOW','MAP','MAT','MAY','MET','MIX','MOB','MOP','MUD','MUG','NAP','NET','NIT','NOD','NOR','NUT','OAK','OAT','ODD','ORE','OWE','OWL','OWN','PAD','PAN','PAT','PAW','PAY','PEA','PEG','PEN','PET','PIE','PIG','PIN','PIT','PLY','POD','POT','PUT','RAG','RAM','RAN','RAT','RAW','RAY','RIB','RID','RIG','RIM','RIP','ROB','ROD','ROT','ROW','RUB','RUG','SAD','SAP','SAT','SAW','SET','SHY','SIN','SIP','SIS','SIX','SKI','SKY','SLY','SOB','SOD','SON','SOP','SOT','SOW','SOY','SPA','SPY','STY','SUB','SUM','SUN','TAB','TAG','TAN','TAP','TAR','TAT','TAX','TEA','TIE','TIP','TOE','TON','TOW','TOY','TUB','TUG','TWO','URN','VAN','VAT','VET','VOW','WAR','WAX','WEB','WED','WET','WIG','WIN','WIT','WOE','WOK','WON','WOO','WOW','YAM','YAP','YAW','ZAP','ZEN','ZIP','ZOO','AREA','CLUE','CODE','EAST','HUNT','LAKE','LAND','LION','LONE','MARK','OPEN','ROAD','STAR','TRIP','WEST','WORD','BEAST','ROAMY','SHARK'];
+      const finds = [];
+      grid.forEach((r, ri) => {
+        const str = r.join('');
+        commonWords.forEach(w => {
+          let idx = str.indexOf(w);
+          while (idx !== -1) {
+            finds.push('Row ' + (ri + 1) + ' col ' + (idx + 1) + ': ' + w + ' in ' + str);
+            idx = str.indexOf(w, idx + 1);
+          }
+          const rev = str.split('').reverse().join('');
+          idx = rev.indexOf(w);
+          while (idx !== -1) {
+            finds.push('Row ' + (ri + 1) + ' reversed col ' + (idx + 1) + ': ' + w + ' in ' + rev);
+            idx = rev.indexOf(w, idx + 1);
+          }
+        });
+      });
+      for (let c = 0; c < C; c++) {
+        const str = grid.map(r => r[c]).join('');
+        commonWords.forEach(w => {
+          let idx = str.indexOf(w);
+          while (idx !== -1) {
+            finds.push('Col ' + (c + 1) + ' row ' + (idx + 1) + ': ' + w + ' in ' + str);
+            idx = str.indexOf(w, idx + 1);
+          }
+        });
+      }
+      add('101. Hidden word search (3–5 letter words, rows+cols+reversed)', pre(
+        finds.length ? finds.join('\n') : '(no common words found)'
+      ));
+    }
+
+    // 102. Cross pattern: center row (row 7) + center column (col 6)
+    {
+      const centerRow = grid[7].join('');
+      const centerCol = grid.map(r => r[5]).join('');
+      add('102. Cross (center row 8 + center col 6)', pre('Row 8: ' + centerRow + '\nCol 6: ' + centerCol));
+    }
+
+    // 103. Letter-value parity: even=E odd=O per cell
+    {
+      s = grid.map(r => r.map(c => pos(c) % 2 === 0 ? 'E' : 'O').join('')).join('\n');
+      add('103. Letter-value parity (odd/even)', pre(s));
+    }
+
+    // 104. A1Z26 then binary (5-bit) representation
+    {
+      s = grid.map(r => r.map(c => pos(c).toString(2).padStart(5, '0')).join(' ')).join('\n');
+      add('104. 5-bit binary per letter', pre(s));
+    }
+
+    // 105. Read bit-columns from 5-bit encoding of first letters
+    {
+      const bits = grid.map(r => pos(r[0]).toString(2).padStart(5, '0'));
+      let bitCols = '';
+      for (let b = 0; b < 5; b++) {
+        bitCols += 'Bit ' + b + ': ' + bits.map(s => s[b]).join('') + '\n';
+      }
+      add('105. 5-bit encoding of first letters (bit-columns)', pre(bits.join('\n') + '\n\n' + bitCols.trim()));
+    }
+
+    // 106. Morse-like: vowel = dot, consonant = dash, space between words
+    {
+      s = grid.map(r => r.map(c => isVowel(c) ? '·' : '−').join('')).join('\n');
+      add('106. Morse-like (vowel=·, consonant=−)', pre(s));
+    }
+
+    // 107. Index by row sum of phrase characters (A=1)
+    {
+      const ext = grid.map((r, i) => {
+        const pLetters = phrases[i].toUpperCase().replace(/[^A-Z]/g, '');
+        const pSum = pLetters.split('').reduce((a, c) => a + pos(c), 0);
+        const idx = (pSum % 12) || 12;
+        return { pSum, idx, letter: r[idx - 1] };
+      });
+      add('107. Index by phrase letter-sum (mod 12)', pre(
+        ext.map((e, i) => '"' + phrases[i] + '" sum=' + e.pSum + ' mod12=' + e.idx + ' → ' + e.letter).join('\n') +
+        '\n  → ' + ext.map(e => e.letter).join('')
+      ));
+    }
+
+    // 108. ROT each row by its phrase word-count
+    s = grid.map((r, i) => r.map(c => rot(c, phraseWordCounts[i])).join('')).join('\n');
+    add('108. ROT each row by phrase word-count', pre(
+      grid.map((r, i) => 'wc=' + phraseWordCounts[i] + ' → ' + r.map(c => rot(c, phraseWordCounts[i])).join('')).join('\n')
+    ));
+
+    // 109. ROT each row by phrase char-length
+    s = grid.map((r, i) => r.map(c => rot(c, phraseCharLengths[i])).join('')).join('\n');
+    add('109. ROT each row by phrase char-length (no spaces)', pre(
+      grid.map((r, i) => 'len=' + phraseCharLengths[i] + ' → ' + r.map(c => rot(c, phraseCharLengths[i])).join('')).join('\n')
+    ));
+
+    // 110. Use phrase verbs as clue: extract first word of each phrase
+    {
+      const verbs = phrases.map(p => p.split(/\s+/)[0]);
+      add('110. Phrase verbs / first words', pre(
+        verbs.map((v, i) => v + ' → first letter ' + v[0].toUpperCase()).join('\n') +
+        '\n  → ' + verbs.map(v => v[0].toUpperCase()).join('')
+      ));
+    }
+
+    // 111. Column sums (A=1) per column
+    {
+      const colSums = [];
+      for (let c = 0; c < C; c++) {
+        colSums.push(grid.reduce((a, r) => a + pos(r[c]), 0));
+      }
+      add('111. Column sums (A=1)', pre(
+        colSums.map((s, i) => 'Col ' + (i + 1) + ': ' + s).join('\n') +
+        '\n  mod 26 → ' + colSums.map(s => String.fromCharCode(65 + (s % 26))).join('')
+      ));
+    }
+
+    // 112. Column sums mod 26 as letters
+    {
+      const colSums = [];
+      for (let c = 0; c < C; c++) {
+        colSums.push(grid.reduce((a, r) => a + pos(r[c]), 0));
+      }
+      add('112. Column sums mod 26 → letters', pre(colSums.map(s => String.fromCharCode(65 + (s % 26))).join('')));
+    }
+
+    // 113. 3×3 sub-grid sums (5 blocks across top 15 rows = 5 blocks of 3×3 in 3 row-bands)
+    {
+      let result = '';
+      for (let br = 0; br + 2 < R; br += 3) {
+        for (let bc = 0; bc + 2 < C; bc += 3) {
+          let sum = 0;
+          for (let r = br; r < br + 3; r++) for (let c = bc; c < bc + 3; c++) sum += pos(grid[r][c]);
+          result += 'Block(' + br + ',' + bc + '): ' + sum + ' mod26=' + String.fromCharCode(65 + (sum % 26)) + '  ';
+        }
+        result += '\n';
+      }
+      add('113. 3×3 sub-grid sums → letters', pre(result.trim()));
+    }
+
+    // 114. Window of 4 letters (2×2) - top-left corner of each
+    {
+      let result = '';
+      for (let r = 0; r < R - 1; r++) {
+        for (let c = 0; c < C - 1; c++) {
+          const quad = grid[r][c] + grid[r][c+1] + grid[r+1][c] + grid[r+1][c+1];
+          result += quad + ' ';
+        }
+        result += '\n';
+      }
+      add('114. All 2×2 windows (14×11 = 154 quads)', pre(result.trim()));
+    }
+
+    // 115. "Drop Quote" style: numbered cells 1..180, show which row each # is in
+    {
+      const numbered = grid.map((r, ri) => r.map((c, ci) => {
+        const n = ri * C + ci + 1;
+        return n.toString().padStart(3) + '=' + c;
+      }).join(' ')).join('\n');
+      add('115. Numbered cells (1–180)', pre(numbered));
+    }
+
+    // 116. Columnar transposition with key "BEAST" (5 cols)
+    {
+      const key = 'BEAST';
+      const keyOrder = key.split('').map((c, i) => [c, i]).sort((a, b) => a[0].localeCompare(b[0])).map(x => x[1]);
+      const ncols = key.length;
+      const cols = Array.from({ length: ncols }, () => '');
+      for (let i = 0; i < rowMajor.length; i++) {
+        cols[i % ncols] += rowMajor[i];
+      }
+      const reordered = keyOrder.map(i => cols[i]).join('');
+      add('116. Columnar transposition (key "BEAST")', pre(
+        'Key order: ' + keyOrder.join(',') + '\n' +
+        keyOrder.map(i => 'Col ' + key[i] + '(' + i + '): ' + cols[i]).join('\n') +
+        '\nRead: ' + reordered
+      ));
+    }
+
+    // 117. Columnar transposition with key "CAR" (3 cols)
+    {
+      const key = 'CAR';
+      const keyOrder = key.split('').map((c, i) => [c, i]).sort((a, b) => a[0].localeCompare(b[0])).map(x => x[1]);
+      const ncols = key.length;
+      const cols = Array.from({ length: ncols }, () => '');
+      for (let i = 0; i < rowMajor.length; i++) {
+        cols[i % ncols] += rowMajor[i];
+      }
+      const reordered = keyOrder.map(i => cols[i]).join('');
+      add('117. Columnar transposition (key "CAR")', pre(
+        'Key order: ' + keyOrder.join(',') + '\n' +
+        keyOrder.map(i => 'Col ' + key[i] + '(' + i + '): ' + cols[i]).join('\n') +
+        '\nRead: ' + reordered
+      ));
+    }
+
+    // 118. Take letter N from word N (N = row number 1-based mod 12, 1-indexed)
+    {
+      const ext = grid.map((r, i) => {
+        const idx = ((i + 1) % 12) || 12;
+        return r[idx - 1];
+      });
+      add('118. Letter (row# mod 12) from each word (1-indexed)', pre(
+        ext.map((c, i) => 'Row ' + (i + 1) + ' pos ' + (((i + 1) % 12) || 12) + ' = ' + c).join('\n') +
+        '\n  → ' + ext.join('')
+      ));
+    }
+
+    // 119. Interleave first-half and second-half of each word
+    {
+      s = grid.map(r => {
+        let out = '';
+        for (let i = 0; i < 6; i++) out += r[i] + r[i + 6];
+        return out;
+      }).join('\n');
+      add('119. Interleave first-half / second-half of each word', pre(s));
+    }
+
+    // 120. Word halves: first 6 and last 6 as separate columns
+    {
+      let left = '', right = '';
+      grid.forEach(r => {
+        left += r.slice(0, 6).join('') + '\n';
+        right += r.slice(6).join('') + '\n';
+      });
+      add('120. Left half (cols 1–6) and right half (cols 7–12)', pre('LEFT:\n' + left.trim() + '\n\nRIGHT:\n' + right.trim()));
+    }
+
+    // 121. Caesar: each row shifted by the ROW NUMBER of the previous row's first letter (chained)
+    {
+      let result = [grid[0].join('')];
+      for (let i = 1; i < R; i++) {
+        const shift = pos(grid[i - 1][0]);
+        result.push(grid[i].map(c => rot(c, shift)).join(''));
+      }
+      add('121. Chained Caesar (shift by prev row\'s first letter)', pre(result.join('\n')));
+    }
+
+    // 122. All ROTs (1–25) of just the first letters
+    {
+      let result = '';
+      for (let n = 1; n <= 25; n++) {
+        result += 'ROT' + n.toString().padStart(2) + ': ' + first.split('').map(c => rot(c, n)).join('') + '\n';
+      }
+      add('122. All ROTs of first letters (ROT1–ROT25)', pre(result.trim()));
+    }
+
+    // 123. Caesar shift each letter by the value of the letter ABOVE it (first row unchanged)
+    {
+      let result = [grid[0].join('')];
+      for (let i = 1; i < R; i++) {
+        result.push(grid[i].map((c, j) => rot(c, pos(grid[i - 1][j]))).join(''));
+      }
+      add('123. Caesar each letter by value of letter above', pre(result.join('\n')));
+    }
+
+    // 124. Caesar shift each letter by the value of the letter TO ITS LEFT (first col unchanged)
+    {
+      s = grid.map(r => {
+        let out = r[0];
+        for (let j = 1; j < r.length; j++) out += rot(r[j], pos(r[j - 1]));
+        return out;
+      }).join('\n');
+      add('124. Caesar each letter by value of letter to its left', pre(s));
+    }
+
+    // 125. Positions of letter A in the grid (could spell coordinates)
+    {
+      for (const target of ['A', 'E', 'I', 'O', 'U', 'R', 'S', 'T', 'N']) {
+        const positions = [];
+        grid.forEach((r, ri) => r.forEach((c, ci) => {
+          if (c === target) positions.push('(' + (ri + 1) + ',' + (ci + 1) + ')');
+        }));
+        if (positions.length) {
+          add('125' + target + '. Positions of ' + target + ' in grid', pre(positions.join(' ')));
+        }
+      }
+    }
+
+    // 126. Running letter-value total across the row, mod 26 at each step
+    {
+      s = grid.map(r => {
+        let running = 0;
+        return r.map(c => {
+          running = (running + pos(c)) % 26;
+          return String.fromCharCode(65 + running);
+        }).join('');
+      }).join('\n');
+      add('126. Running sum mod 26 across each row', pre(s));
+    }
+
+    // 127. Alternating rows: odd rows forward, even rows ROT13
+    {
+      s = grid.map((r, i) => i % 2 === 0 ? r.join('') : r.map(c => rot(c, 13)).join('')).join('\n');
+      add('127. Odd rows plain, even rows ROT13', pre(s));
+    }
+
+    // 128. Grid colored by letter frequency (just show counts overlaid)
+    // 129. Phrase-based: number of unique words in phrase → index
+    {
+      const ext = grid.map((r, i) => {
+        const uniqueWords = [...new Set(phrases[i].toLowerCase().split(/\s+/))].length;
+        const idx = (uniqueWords % 12) || 12;
+        return { uw: uniqueWords, letter: r[idx - 1] };
+      });
+      add('129. Index by unique phrase word count', pre(
+        ext.map((e, i) => '"' + phrases[i] + '" unique=' + e.uw + ' → ' + e.letter).join('\n') +
+        '\n  → ' + ext.map(e => e.letter).join('')
+      ));
+    }
+
+    // 130. Sum of row number + column number as shift for each cell
+    {
+      s = grid.map((r, ri) => r.map((c, ci) => rot(c, -(ri + ci + 2))).join('')).join('\n');
+      add('130. Un-shift by (row+col, 1-based)', pre(s));
+    }
+
+    // 131. Take the Nth unique letter from each word (N = row#)
+    {
+      const ext = grid.map((r, i) => {
+        const uniq = [...new Set(r)];
+        const idx = i % uniq.length;
+        return uniq[idx] || '?';
+      });
+      add('131. Nth unique letter (N=row index mod unique count)', pre(ext.join('')));
+    }
+
+    // 132. Vertical words: read each column and split at unlikely bigrams
+    // Just show columns clearly spaced for visual scanning
+    {
+      let result = '';
+      for (let c = 0; c < C; c++) {
+        const col = grid.map(r => r[c]).join('');
+        result += 'Col ' + (c + 1).toString().padStart(2) + ': ' + col.split('').join(' ') + '\n';
+      }
+      add('132. Columns spaced for visual word-finding', pre(result.trim()));
+    }
+
+    // 133. Anagram-sorted rows side by side with original
+    {
+      s = grid.map((r, i) => r.join('') + '  →  ' + r.slice().sort().join('')).join('\n');
+      add('133. Original vs alphabetically sorted (side by side)', pre(s));
+    }
+
+    // 134. First letter of each phrase word concatenated
+    {
+      const ext = phrases.map(p => p.split(/\s+/).map(w => w[0].toUpperCase()).join(''));
+      add('134. Phrase word initials', pre(
+        ext.map((e, i) => phrases[i] + ' → ' + e).join('\n') +
+        '\n  all: ' + ext.join(' ')
+      ));
+    }
+
+    // 135. Last letter of each phrase word concatenated
+    {
+      const ext = phrases.map(p => p.split(/\s+/).map(w => w[w.length - 1].toUpperCase()).join(''));
+      add('135. Phrase word finals', pre(
+        ext.map((e, i) => phrases[i] + ' → ' + e).join('\n') +
+        '\n  all: ' + ext.join(' ')
+      ));
+    }
   </script>
 </body>
 </html>
