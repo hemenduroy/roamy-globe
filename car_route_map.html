@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trips by Car — 15 Locations Route Map</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #1a1a1a; color: #e0e0e0; }
+    .site-title { padding: 10px 16px; background: #1a1a1a; border-bottom: 1px solid #333; }
+    .site-title a { color: #f0c050; text-decoration: none; font-weight: bold; font-size: 1rem; }
+    .site-title a:hover { text-decoration: underline; }
+    .layout { display: flex; height: calc(100vh - 42px); }
+    .sidebar { width: 340px; min-width: 280px; background: #1a1a1a; border-right: 1px solid #333; overflow-y: auto; padding: 12px; flex-shrink: 0; }
+    .sidebar h2 { font-size: 1rem; color: #f0c050; margin-bottom: 10px; }
+    .sidebar table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .sidebar th { text-align: left; color: #888; border-bottom: 1px solid #444; padding: 4px 6px; font-weight: normal; }
+    .sidebar td { padding: 4px 6px; border-bottom: 1px solid #2a2a2a; cursor: pointer; }
+    .sidebar tr:hover td { background: #2a2a2a; }
+    .sidebar .num { color: #f0c050; font-weight: bold; width: 20px; text-align: center; }
+    .sidebar .city { color: #7dd3fc; }
+    .sidebar .word { color: #888; font-size: 11px; }
+    #map { flex: 1; }
+  </style>
+</head>
+<body>
+  <p class="site-title"><a href="index.html">&larr; ROAMY STUPID</a></p>
+  <div class="layout">
+    <div class="sidebar">
+      <h2>Trips by Car — 15 locations</h2>
+      <table id="locTable">
+        <tr><th>#</th><th>City</th><th>Word</th></tr>
+      </table>
+    </div>
+    <div id="map"></div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const locations = [
+      { n: 1,  city: "Casper, Wyoming",       word: "BARODYNAMICS", lat: 42.8666, lon: -106.3131 },
+      { n: 2,  city: "Arzamas, Russia",        word: "EBULLIOSCOPE", lat: 55.3964, lon: 43.8400 },
+      { n: 3,  city: "Mubi, Nigeria",          word: "FURFURACEOUS", lat: 10.2681, lon: 13.2642 },
+      { n: 4,  city: "Baku, Azerbaijan",       word: "HAPAXANTHOUS", lat: 40.4093, lon: 49.8671 },
+      { n: 5,  city: "Moora, Australia",       word: "HEKISTOTHERM", lat: -30.6378, lon: 116.0078 },
+      { n: 6,  city: "Surat, India",           word: "INCLINOMETER", lat: 21.1702, lon: 72.8311 },
+      { n: 7,  city: "Marquette, Michigan",    word: "MARIMBAPHONE", lat: 46.5436, lon: -87.3954 },
+      { n: 8,  city: "Beatty, Nevada",         word: "NEBULOPHOBIA", lat: 36.9086, lon: -116.7592 },
+      { n: 9,  city: "Mosul, Iraq",            word: "OCHROLEUCOUS", lat: 36.3350, lon: 43.1189 },
+      { n: 10, city: "Visby, Sweden",          word: "RECEPTACULAR", lat: 57.6348, lon: 18.2948 },
+      { n: 11, city: "Istanbul, Turkey",       word: "RISORGIMENTO", lat: 41.0082, lon: 28.9784 },
+      { n: 12, city: "Genoa, Italy",           word: "SALAMANDROID", lat: 44.4056, lon: 8.9463 },
+      { n: 13, city: "Mayotte, France",        word: "SCAPULOMANCY", lat: -12.8275, lon: 45.1662 },
+      { n: 14, city: "Giresun, Turkey",        word: "THEANTHROPIC", lat: 40.9128, lon: 38.3895 },
+      { n: 15, city: "L'Ascension, Quebec",    word: "ULTRAMONTANE", lat: 46.9833, lon: -73.8500 }
+    ];
+
+    const table = document.getElementById('locTable');
+    const map = L.map('map', { worldCopyJump: true }).setView([25, 10], 2);
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; OpenStreetMap &copy; CARTO',
+      maxZoom: 18
+    }).addTo(map);
+
+    const markers = [];
+    const routeCoords = locations.map(loc => [loc.lat, loc.lon]);
+
+    const colors = [
+      '#e6194b','#3cb44b','#ffe119','#4363d8','#f58231',
+      '#911eb4','#46f0f0','#f032e6','#bcf60c','#fabebe',
+      '#008080','#e6beff','#9a6324','#fffac8','#800000'
+    ];
+
+    locations.forEach((loc, i) => {
+      const marker = L.circleMarker([loc.lat, loc.lon], {
+        radius: 8, fillColor: colors[i], color: '#fff', weight: 2, fillOpacity: 0.9
+      }).addTo(map);
+
+      marker.bindPopup(
+        '<b>' + loc.n + '. ' + loc.city + '</b><br>' +
+        '<span style="color:#888">' + loc.word + '</span>'
+      );
+
+      const numIcon = L.divIcon({
+        className: '',
+        html: '<div style="background:' + colors[i] + ';color:#fff;font-weight:bold;font-size:11px;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,0.5)">' + loc.n + '</div>',
+        iconSize: [20, 20],
+        iconAnchor: [10, 10]
+      });
+      L.marker([loc.lat, loc.lon], { icon: numIcon }).addTo(map);
+
+      markers.push(marker);
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td class="num">' + loc.n + '</td><td class="city">' + loc.city + '</td><td class="word">' + loc.word + '</td>';
+      tr.addEventListener('click', () => {
+        map.setView([loc.lat, loc.lon], 6);
+        marker.openPopup();
+      });
+      table.appendChild(tr);
+    });
+
+    // Draw route segments with gradient
+    for (let i = 0; i < routeCoords.length - 1; i++) {
+      L.polyline([routeCoords[i], routeCoords[i + 1]], {
+        color: colors[i], weight: 2.5, opacity: 0.7, dashArray: '8,6'
+      }).addTo(map);
+    }
+
+    // Fit map to all markers
+    const group = L.featureGroup(markers);
+    map.fitBounds(group.getBounds().pad(0.1));
+  </script>
+</body>
+</html>
