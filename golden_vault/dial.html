@@ -127,9 +127,9 @@
 
     .dial-pointer {
       position: absolute;
-      left: 50%;
-      bottom: 0;
-      transform: translate(-50%, 50%);
+      left: 0;
+      top: 50%;
+      transform: translate(-50%, -50%) rotate(90deg);
       width: 0;
       height: 0;
       border-left: 8px solid transparent;
@@ -395,7 +395,7 @@
     <div class="dial-container">
       <div id="dial" class="dial">
         <div id="dialRing" class="dial-ring"></div>
-        <div class="dial-pointer" title="Reading position (6 o&rsquo;clock)"></div>
+        <div class="dial-pointer" title="Reading position (9 o&rsquo;clock)"></div>
         <div class="center-cap">
           <div class="label">Vault</div>
           <div class="code">R62&nbsp;&middot;&nbsp;L39&nbsp;&middot;&nbsp;R05</div>
@@ -452,12 +452,12 @@
     const GAP_EACH_SIDE = 3;
     const STAR_INDEX = 0;
     const TOTAL_SLOTS = TOTAL_SEGMENTS + 1 + GAP_EACH_SIDE * 2; // 141
-    // Tick #103 (1-based) lives at slot index 4 + (103 - 1) = 106. Anchor at 6 o'clock (90°).
+    // Star and pointer both at 9 o'clock (180°). Layout: angle(pos) = 180 + 360*pos/141.
     const TICK_103_AT_6OCLOCK = 103;
     const SLOT_INDEX_OF_TICK_103 = 4 + (TICK_103_AT_6OCLOCK - 1); // 106
     const FIRST_TICK_SLOT = 4;
     const TICK_INDEX_AT_6OCLOCK = SLOT_INDEX_OF_TICK_103 - FIRST_TICK_SLOT; // 102
-    const SIX_OCLOCK_DEG = 90;
+    const NINE_OCLOCK_DEG = 180;
     const DEG_PER_SLOT = 360 / TOTAL_SLOTS;
 
     function buildSlots() {
@@ -494,32 +494,26 @@
     }
 
     let SLOTS_DATA = [];
-    let cumulativeSteps = 0;
+    // Dial rotation in "slot units" (141 positions). Positive = turn dial clockwise (R).
+    // We keep this unbounded (not modded) so large commands animate multiple turns naturally.
+    let rotationStepsSlots = 0;
     const degPerSlot = 360 / TOTAL_SLOTS;
 
     function getIgnoreSpaces() {
       return document.getElementById('ignoreSpaces')?.checked ?? false;
     }
 
+    // With star at 9 o'clock and pointer at 9 o'clock, the slot under the pointer after
+    // turning the dial by `rotationStepsSlots` is: slot = (-rotationStepsSlots) mod 141.
     function slotIndexAtPointer() {
-      if (getIgnoreSpaces()) {
-        const tickIndex = ((TICK_INDEX_AT_6OCLOCK + cumulativeSteps) % TOTAL_SEGMENTS + TOTAL_SEGMENTS) % TOTAL_SEGMENTS;
-        return FIRST_TICK_SLOT + tickIndex;
-      }
-      return ((SLOT_INDEX_OF_TICK_103 + cumulativeSteps) % TOTAL_SLOTS + TOTAL_SLOTS) % TOTAL_SLOTS;
+      const effective = ((rotationStepsSlots % TOTAL_SLOTS) + TOTAL_SLOTS) % TOTAL_SLOTS;
+      return (TOTAL_SLOTS - effective) % TOTAL_SLOTS;
     }
 
     function updateDialRotation() {
       const ring = document.getElementById('dialRing');
       if (!ring) return;
-      if (getIgnoreSpaces()) {
-        const slotAtPointer = slotIndexAtPointer();
-        const deg = 360 * (SLOT_INDEX_OF_TICK_103 - slotAtPointer) / TOTAL_SLOTS;
-        ring.style.transform = `rotate(${deg}deg)`;
-      } else {
-        const effective = ((cumulativeSteps % TOTAL_SLOTS) + TOTAL_SLOTS) % TOTAL_SLOTS;
-        ring.style.transform = `rotate(${effective * degPerSlot}deg)`;
-      }
+      ring.style.transform = `rotate(${rotationStepsSlots * degPerSlot}deg)`;
     }
 
     function updateResultDisplay() {
@@ -551,9 +545,24 @@
         ops.push({ dir: match[1].toUpperCase(), n: parseInt(match[2], 10) });
       }
       const hits = [];
+
+      function advanceOneTick(dir) {
+        const delta = dir === 'R' ? 1 : -1; // dial rotation direction
+        let guard = 0;
+        while (guard < TOTAL_SLOTS + 2) {
+          rotationStepsSlots += delta;
+          const slot = SLOTS_DATA[slotIndexAtPointer()];
+          if (slot && slot.type === 'tick') return;
+          guard++;
+        }
+      }
+
       for (const { dir, n } of ops) {
-        if (dir === 'R') cumulativeSteps += n;
-        else if (dir === 'L') cumulativeSteps -= n;
+        if (getIgnoreSpaces()) {
+          for (let i = 0; i < n; i++) advanceOneTick(dir);
+        } else {
+          rotationStepsSlots += (dir === 'R' ? n : -n);
+        }
         const slot = SLOTS_DATA[slotIndexAtPointer()];
         hits.push({ op: dir + n, hit: formatHit(slot) });
       }
@@ -584,7 +593,7 @@
       if (dialRing) dialRing.innerHTML = '';
 
       SLOTS_DATA.forEach((slot, pos) => {
-        const angleDeg = SIX_OCLOCK_DEG + 360 * (pos - SLOT_INDEX_OF_TICK_103) / TOTAL_SLOTS;
+        const angleDeg = NINE_OCLOCK_DEG + 360 * pos / TOTAL_SLOTS;
         const angleRad = (angleDeg * Math.PI) / 180;
         const x = cx + radius * Math.cos(angleRad);
         const y = cy + radius * Math.sin(angleRad);
@@ -613,7 +622,7 @@
         if (dialRing) dialRing.appendChild(el);
       });
 
-      cumulativeSteps = 0;
+      rotationStepsSlots = 0;
       updateDialRotation();
       updateResultDisplay();
       renderHitsLog([]);
@@ -629,13 +638,12 @@
         runOperations(text);
       });
       document.getElementById('resetOps')?.addEventListener('click', () => {
-        cumulativeSteps = 0;
+        rotationStepsSlots = 0;
         updateDialRotation();
         updateResultDisplay();
         renderHitsLog([]);
       });
       document.getElementById('ignoreSpaces')?.addEventListener('change', () => {
-        updateDialRotation();
         updateResultDisplay();
       });
     }
