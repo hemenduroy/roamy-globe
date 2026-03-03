@@ -37,16 +37,24 @@
     }
 
     .subtitle {
-      margin-bottom: 16px;
+      margin-bottom: 12px;
       font-size: 0.9rem;
       color: var(--muted);
     }
 
+    .main-row {
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: flex-start;
+      gap: 24px;
+      margin-bottom: 16px;
+    }
+
     .dial-container {
       position: relative;
-      width: 1440px;
-      height: 1440px;
-      margin: 10px 0 16px;
+      width: 560px;
+      height: 560px;
+      margin: 8px 0 12px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -54,8 +62,8 @@
 
     .dial {
       position: relative;
-      width: 1400px;
-      height: 1400px;
+      width: 540px;
+      height: 540px;
       border-radius: 50%;
       background: radial-gradient(circle, #101524 40%, #070a12 100%);
       box-shadow:
@@ -80,8 +88,8 @@
       left: 50%;
       top: 50%;
       transform: translate(-50%, -50%);
-      width: 90px;
-      height: 90px;
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
       background: radial-gradient(circle, #151d34 0, #080c16 70%);
       box-shadow:
@@ -95,31 +103,188 @@
     }
 
     .center-cap .label {
-      font-size: 0.7rem;
+      font-size: 0.5rem;
       color: var(--muted);
-      letter-spacing: 0.18em;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
     }
 
     .center-cap .code {
-      margin-top: 4px;
-      font-size: 0.95rem;
+      margin-top: 2px;
+      font-size: 0.6rem;
       font-weight: 600;
       letter-spacing: 0.12em;
       color: var(--accent);
     }
 
+    .dial-ring {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      transition: transform 0.5s ease-out;
+      transform-origin: 50% 50%;
+    }
+
+    .dial-pointer {
+      position: absolute;
+      left: 50%;
+      bottom: 0;
+      transform: translate(-50%, 50%);
+      width: 0;
+      height: 0;
+      border-left: 8px solid transparent;
+      border-right: 8px solid transparent;
+      border-bottom: 14px solid var(--accent);
+      filter: drop-shadow(0 0 6px rgba(255, 200, 87, 0.8));
+      z-index: 5;
+      pointer-events: none;
+    }
+
+    .vault-ops {
+      flex: 0 1 auto;
+      min-width: 280px;
+      padding: 16px 20px;
+      background: rgba(12, 16, 28, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      max-width: 420px;
+    }
+
+    .vault-ops h3 {
+      margin: 0 0 12px;
+      font-size: 1rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .vault-ops-toggle {
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .vault-ops-toggle input {
+      flex: none;
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .vault-ops-toggle label {
+      cursor: pointer;
+      font-size: 0.9rem;
+      color: var(--fg);
+    }
+
+    .vault-ops-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .vault-ops input {
+      flex: 1;
+      min-width: 180px;
+      padding: 8px 12px;
+      font-size: 1rem;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 6px;
+      color: var(--fg);
+    }
+
+    .vault-ops input::placeholder {
+      color: var(--muted);
+    }
+
+    .vault-ops button {
+      padding: 8px 16px;
+      font-size: 0.9rem;
+      background: var(--accent);
+      color: var(--bg);
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .vault-ops button:hover {
+      filter: brightness(1.1);
+    }
+
+    .vault-ops button.secondary {
+      background: rgba(255, 255, 255, 0.15);
+      color: var(--fg);
+    }
+
+    .vault-result {
+      margin-top: 12px;
+      padding: 12px;
+      background: rgba(0, 0, 0, 0.35);
+      border-radius: 6px;
+      font-family: ui-monospace, monospace;
+      font-size: 0.95rem;
+      min-height: 2.5em;
+    }
+
+    .vault-result .hit {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .vault-hits-log {
+      margin-top: 12px;
+      padding: 12px;
+      background: rgba(0, 0, 0, 0.35);
+      border-radius: 6px;
+      font-family: ui-monospace, monospace;
+      font-size: 0.85rem;
+      max-height: 240px;
+      overflow-y: auto;
+    }
+
+    .vault-hits-log h4 {
+      margin: 0 0 8px;
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .vault-hits-log ul {
+      margin: 0;
+      padding-left: 1.2em;
+      list-style: none;
+    }
+
+    .vault-hits-log li {
+      margin-bottom: 4px;
+    }
+
+    .vault-hits-log li .op {
+      color: var(--muted);
+    }
+
+    .vault-hits-log li .hit {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
     .slot {
       position: absolute;
-      width: 24px;
-      height: 24px;
+      width: 12px;
+      height: 12px;
       /* transform with rotation set inline for radial alignment */
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      font-size: 13px;
-      line-height: 1.15;
+      font-size: 8px;
+      line-height: 1.1;
       color: var(--fg);
       pointer-events: auto;
     }
@@ -141,9 +306,9 @@
     }
 
     .slot.star {
-      width: 36px;
-      height: 36px;
-      font-size: 1.4rem;
+      width: 18px;
+      height: 18px;
+      font-size: 0.9rem;
       color: var(--accent);
       text-shadow: 0 0 14px rgba(255, 200, 87, 0.9);
       background: none;
@@ -151,8 +316,8 @@
     }
 
     .slot.gap {
-      width: 14px;
-      height: 14px;
+      width: 8px;
+      height: 8px;
       opacity: 0.35;
       font-size: 0.5rem;
       color: var(--muted);
@@ -160,7 +325,7 @@
 
     /* number outer (first), letter inner (second) — both point toward center */
     .slot .num {
-      font-size: 13px;
+      font-size: 7px;
       font-weight: 700;
       color: var(--accent);
       margin-bottom: 0;
@@ -168,7 +333,7 @@
     }
 
     .slot .letter {
-      font-size: 14px;
+      font-size: 8px;
       font-weight: 600;
       color: var(--fg);
       order: 2;
@@ -226,12 +391,34 @@
   <h2>Golden Vault Dial</h2>
   <div class="subtitle">134 numbered positions around the lock, each with a letter; star at 9&nbsp;o&rsquo;clock.</div>
 
-  <div class="dial-container">
-    <div id="dial" class="dial">
-      <div class="center-cap">
-        <div class="label">Vault</div>
-        <div class="code">R62&nbsp;&middot;&nbsp;L39&nbsp;&middot;&nbsp;R05</div>
+  <div class="main-row">
+    <div class="dial-container">
+      <div id="dial" class="dial">
+        <div id="dialRing" class="dial-ring"></div>
+        <div class="dial-pointer" title="Reading position (6 o&rsquo;clock)"></div>
+        <div class="center-cap">
+          <div class="label">Vault</div>
+          <div class="code">R62&nbsp;&middot;&nbsp;L39&nbsp;&middot;&nbsp;R05</div>
+        </div>
       </div>
+    </div>
+
+    <div class="vault-ops">
+    <h3>Check combination</h3>
+    <div class="vault-ops-toggle">
+      <input type="checkbox" id="ignoreSpaces" />
+      <label for="ignoreSpaces">Ignore spaces</label>
+    </div>
+    <div class="vault-ops-row">
+      <input type="text" id="opsInput" placeholder="e.g. R62 L39 R05" value="R62 L39 R05" />
+      <button type="button" id="runOps">Run</button>
+      <button type="button" id="resetOps" class="secondary">Reset</button>
+    </div>
+    <div class="vault-result" id="vaultResult">At pointer: —</div>
+    <div class="vault-hits-log" id="vaultHitsLog">
+      <h4>Hits (each step)</h4>
+      <ul id="vaultHitsList"></ul>
+    </div>
     </div>
   </div>
 
@@ -248,8 +435,7 @@
     const DIAL_NUMBERS = [
       4,1,8,4,1,3,1,8,4,1,1,3,4,4,1,2,1,1,4,2,3,1,4,10,1,1,2,4,1,1,1,3,1,3,1,1,1,8,4,3,
       1,1,1,1,10,4,4,1,1,5,1,4,1,8,10,1,1,1,1,1,1,3,1,1,4,1,1,8,4,1,8,1,1,1,4,1,1,1,2,
-      1,1,1,3,1,8,1,5,4,1,3,1,1,3,1,1,3,1,4,3,4,1,3,1,3,3,1,1,1,3,4,4,1,3,3,1,8,5,1,1,
-      0,1,1,1,1,1,1,1,4,1,1,2,2,1,1,3
+      1,1,1,3,1,8,1,5,4,1,3,1,1,3,1,1,3,1,4,3,4,1,3,1,3,3,1,1,1,3,4,4,1,3,3,1,8,5,1,10,1,1,1,1,1,1,1,4,1,1,2,2,1,1,3
     ];
 
     const DIAL_LETTERS = [
@@ -269,6 +455,8 @@
     // Tick #103 (1-based) lives at slot index 4 + (103 - 1) = 106. Anchor at 6 o'clock (90°).
     const TICK_103_AT_6OCLOCK = 103;
     const SLOT_INDEX_OF_TICK_103 = 4 + (TICK_103_AT_6OCLOCK - 1); // 106
+    const FIRST_TICK_SLOT = 4;
+    const TICK_INDEX_AT_6OCLOCK = SLOT_INDEX_OF_TICK_103 - FIRST_TICK_SLOT; // 102
     const SIX_OCLOCK_DEG = 90;
     const DEG_PER_SLOT = 360 / TOTAL_SLOTS;
 
@@ -305,19 +493,97 @@
       return slots;
     }
 
+    let SLOTS_DATA = [];
+    let cumulativeSteps = 0;
+    const degPerSlot = 360 / TOTAL_SLOTS;
+
+    function getIgnoreSpaces() {
+      return document.getElementById('ignoreSpaces')?.checked ?? false;
+    }
+
+    function slotIndexAtPointer() {
+      if (getIgnoreSpaces()) {
+        const tickIndex = ((TICK_INDEX_AT_6OCLOCK + cumulativeSteps) % TOTAL_SEGMENTS + TOTAL_SEGMENTS) % TOTAL_SEGMENTS;
+        return FIRST_TICK_SLOT + tickIndex;
+      }
+      return ((SLOT_INDEX_OF_TICK_103 + cumulativeSteps) % TOTAL_SLOTS + TOTAL_SLOTS) % TOTAL_SLOTS;
+    }
+
+    function updateDialRotation() {
+      const ring = document.getElementById('dialRing');
+      if (!ring) return;
+      if (getIgnoreSpaces()) {
+        const slotAtPointer = slotIndexAtPointer();
+        const deg = 360 * (SLOT_INDEX_OF_TICK_103 - slotAtPointer) / TOTAL_SLOTS;
+        ring.style.transform = `rotate(${deg}deg)`;
+      } else {
+        const effective = ((cumulativeSteps % TOTAL_SLOTS) + TOTAL_SLOTS) % TOTAL_SLOTS;
+        ring.style.transform = `rotate(${effective * degPerSlot}deg)`;
+      }
+    }
+
+    function updateResultDisplay() {
+      const el = document.getElementById('vaultResult');
+      if (!el) return;
+      const slot = SLOTS_DATA[slotIndexAtPointer()];
+      if (slot && slot.type === 'tick') {
+        el.innerHTML = `At pointer: <span class="hit">#${slot.index} → ${slot.num}, ${slot.letter}</span>`;
+      } else if (slot) {
+        el.innerHTML = `At pointer: <span class="hit">${slot.type === 'star' ? '★ star' : '· gap'}</span>`;
+      } else {
+        el.textContent = 'At pointer: —';
+      }
+    }
+
+    function formatHit(slot) {
+      if (!slot) return '—';
+      if (slot.type === 'tick') return `#${slot.index} → ${slot.num}, ${slot.letter}`;
+      if (slot.type === 'star') return '★ star';
+      if (slot.type === 'gap') return '· gap';
+      return '—';
+    }
+
+    function runOperations(opsText) {
+      const re = /([RL])\s*(\d+)/gi;
+      const ops = [];
+      let match;
+      while ((match = re.exec(opsText)) !== null) {
+        ops.push({ dir: match[1].toUpperCase(), n: parseInt(match[2], 10) });
+      }
+      const hits = [];
+      for (const { dir, n } of ops) {
+        if (dir === 'R') cumulativeSteps += n;
+        else if (dir === 'L') cumulativeSteps -= n;
+        const slot = SLOTS_DATA[slotIndexAtPointer()];
+        hits.push({ op: dir + n, hit: formatHit(slot) });
+      }
+      updateDialRotation();
+      updateResultDisplay();
+      renderHitsLog(hits);
+    }
+
+    function renderHitsLog(hits) {
+      const list = document.getElementById('vaultHitsList');
+      if (!list) return;
+      list.innerHTML = hits.length
+        ? hits.map(({ op, hit }) => `<li><span class="op">${op}</span> → <span class="hit">${hit}</span></li>`).join('')
+        : '<li style="color: var(--muted)">No steps run yet.</li>';
+    }
+
     function renderDial() {
       const dial = document.getElementById('dial');
-      const slots = buildSlots();
+      const dialRing = document.getElementById('dialRing');
+      SLOTS_DATA = buildSlots();
 
-      const w = dial.offsetWidth || 1400;
-      const h = dial.offsetHeight || 1400;
+      const w = dial.offsetWidth || 540;
+      const h = dial.offsetHeight || 540;
       const cx = w / 2;
       const cy = h / 2;
       const radius = Math.min(w, h) * 0.44;
 
-      // Exact math: slot containing tick #103 at 6 o'clock (90°), all others uniformly spaced
-      // angle(pos) = 90° + 360° * (pos - 106) / 141
-      slots.forEach((slot, pos) => {
+      if (dialRing) dialRing.innerHTML = '';
+
+      SLOTS_DATA.forEach((slot, pos) => {
         const angleDeg = SIX_OCLOCK_DEG + 360 * (pos - SLOT_INDEX_OF_TICK_103) / TOTAL_SLOTS;
         const angleRad = (angleDeg * Math.PI) / 180;
         const x = cx + radius * Math.cos(angleRad);
@@ -327,7 +593,6 @@
         el.className = 'slot ' + slot.type;
         el.style.left = `${x}px`;
         el.style.top = `${y}px`;
-        /* Align slot along radius: number outer, letter inner. CSS 0° = right; slot "up" is 270°; we want "up" = angleDeg (outward). */
         const radialDeg = angleDeg + 90;
         el.style.setProperty('--slot-angle', radialDeg + 'deg');
         el.style.transform = `translate(-50%, -50%) rotate(${radialDeg}deg)`;
@@ -345,14 +610,34 @@
           el.title = 'Empty gap';
         }
 
-        dial.appendChild(el);
+        if (dialRing) dialRing.appendChild(el);
       });
+
+      cumulativeSteps = 0;
+      updateDialRotation();
+      updateResultDisplay();
+      renderHitsLog([]);
 
       const summary = document.getElementById('summary');
       const lettersJoined = DIAL_LETTERS.join('');
       summary.innerHTML =
         `<span><strong>Segments:</strong> ${TOTAL_SEGMENTS} numbers + star</span>` +
         `<span><strong>Letter ring:</strong> ${lettersJoined}</span>`;
+
+      document.getElementById('runOps')?.addEventListener('click', () => {
+        const text = document.getElementById('opsInput')?.value || '';
+        runOperations(text);
+      });
+      document.getElementById('resetOps')?.addEventListener('click', () => {
+        cumulativeSteps = 0;
+        updateDialRotation();
+        updateResultDisplay();
+        renderHitsLog([]);
+      });
+      document.getElementById('ignoreSpaces')?.addEventListener('change', () => {
+        updateDialRotation();
+        updateResultDisplay();
+      });
     }
 
     window.addEventListener('load', renderDial);
