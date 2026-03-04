@@ -181,6 +181,26 @@
       margin-bottom: 12px;
     }
 
+    .vault-ops-row.marker-row label {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .vault-ops-row.marker-row input[type="number"] {
+      width: 3.2em;
+      padding: 6px 8px;
+      font-size: 0.9rem;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 6px;
+      color: var(--fg);
+    }
+
+    .marker-hint {
+      font-size: 0.8rem;
+      color: var(--accent);
+    }
+
     .vault-ops input {
       flex: 1;
       min-width: 180px;
@@ -401,6 +421,11 @@
       <input type="checkbox" id="ignoreSpaces" />
       <label for="ignoreSpaces">Ignore spaces</label>
     </div>
+    <div class="vault-ops-row marker-row">
+      <label for="markerTick">Position at 9&nbsp;o&rsquo;clock when reset:</label>
+      <input type="number" id="markerTick" min="0" max="140" value="0" title="0 = star, 1-3 & 138-140 = spaces, 4-137 = tick #1-#134" />
+      <span class="marker-hint" id="markerHint">(star)</span>
+    </div>
     <div class="vault-ops-row">
       <input type="text" id="opsInput" placeholder="e.g. R62 L39 R05" value="R62 L39 R05" />
       <button type="button" id="runOps">Run</button>
@@ -487,7 +512,6 @@
 
     let SLOTS_DATA = [];
     // Dial rotation in "slot units" (141 positions). Positive = turn dial clockwise (R).
-    // We keep this unbounded (not modded) so large commands animate multiple turns naturally.
     let rotationStepsSlots = 0;
     const degPerSlot = 360 / TOTAL_SLOTS;
 
@@ -495,17 +519,43 @@
       return document.getElementById('ignoreSpaces')?.checked ?? false;
     }
 
-    // With star at 9 o'clock and pointer at 9 o'clock, the slot under the pointer after
-    // turning the dial by `rotationStepsSlots` is: slot = (-rotationStepsSlots) mod 141.
+    // 0 = star (slot 0). 1-3 & 138-140 = spaces. 4-137 = tick #1-#134. Marker = slot index.
+    function getMarkerSlotAtRest() {
+      const el = document.getElementById('markerTick');
+      if (!el) return 0;
+      const v = parseInt(el.value, 10);
+      if (Number.isNaN(v) || v < 0) return 0;
+      return Math.min(v, TOTAL_SLOTS - 1);
+    }
+
+    // Slot at 9 o'clock = markerSlotAtRest when rotation is 0; then shifts by -rotationStepsSlots per step.
     function slotIndexAtPointer() {
+      const markerAtRest = getMarkerSlotAtRest();
       const effective = ((rotationStepsSlots % TOTAL_SLOTS) + TOTAL_SLOTS) % TOTAL_SLOTS;
-      return (TOTAL_SLOTS - effective) % TOTAL_SLOTS;
+      return (markerAtRest - effective + TOTAL_SLOTS) % TOTAL_SLOTS;
     }
 
     function updateDialRotation() {
       const ring = document.getElementById('dialRing');
       if (!ring) return;
-      ring.style.transform = `rotate(${rotationStepsSlots * degPerSlot}deg)`;
+      const markerAtRest = getMarkerSlotAtRest();
+      const deg = (rotationStepsSlots - markerAtRest) * degPerSlot;
+      ring.style.transform = `rotate(${deg}deg)`;
+    }
+
+    function updateMarkerHint() {
+      const hint = document.getElementById('markerHint');
+      if (!hint || !SLOTS_DATA.length) return;
+      const slot = SLOTS_DATA[getMarkerSlotAtRest()];
+      if (slot && slot.type === 'tick') {
+        hint.textContent = `(slot ${getMarkerSlotAtRest()} → #${slot.index} ${slot.num},${slot.letter})`;
+      } else if (slot && slot.type === 'star') {
+        hint.textContent = '(slot 0 = star)';
+      } else if (slot && slot.type === 'gap') {
+        hint.textContent = `(slot ${getMarkerSlotAtRest()} = gap)`;
+      } else {
+        hint.textContent = `(slot ${getMarkerSlotAtRest()})`;
+      }
     }
 
     function updateResultDisplay() {
@@ -565,11 +615,15 @@
         return;
       }
 
+      const runBtn = document.getElementById('runOps');
+      if (runBtn) runBtn.disabled = true;
+
       let index = 0;
       function runNext() {
         if (index >= ops.length) {
           updateResultDisplay();
           renderHitsLog(hits);
+          if (runBtn) runBtn.disabled = false;
           return;
         }
         const { dir, n } = ops[index];
@@ -641,7 +695,21 @@
       rotationStepsSlots = 0;
       updateDialRotation();
       updateResultDisplay();
+      updateMarkerHint();
       renderHitsLog([]);
+
+      document.getElementById('markerTick')?.addEventListener('change', () => {
+        updateDialRotation();
+        updateResultDisplay();
+        updateMarkerHint();
+      });
+      document.getElementById('markerTick')?.addEventListener('input', () => {
+        const el = document.getElementById('markerTick');
+        if (el && el.value !== '' && (Number(el.value) < 0 || Number(el.value) > 140)) return;
+        updateDialRotation();
+        updateResultDisplay();
+        updateMarkerHint();
+      });
 
       const summary = document.getElementById('summary');
       const lettersJoined = DIAL_LETTERS.join('');
