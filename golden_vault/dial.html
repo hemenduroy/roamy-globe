@@ -91,30 +91,13 @@
       width: 44px;
       height: 44px;
       border-radius: 50%;
-      background: radial-gradient(circle, #151d34 0, #080c16 70%);
+      background: radial-gradient(circle at 30% 30%, #2a2416 0, #1a1608 40%, #0d0a04 100%);
       box-shadow:
-        0 0 0 2px rgba(255, 255, 255, 0.06),
-        0 10px 30px rgba(0, 0, 0, 0.8);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
+        0 0 0 2px rgba(255, 200, 87, 0.25),
+        0 0 12px rgba(255, 200, 87, 0.15),
+        0 10px 30px rgba(0, 0, 0, 0.8),
+        inset 0 1px 0 rgba(255, 220, 120, 0.12);
       z-index: 3;
-    }
-
-    .center-cap .label {
-      font-size: 0.5rem;
-      color: var(--muted);
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-    }
-
-    .center-cap .code {
-      margin-top: 2px;
-      font-size: 0.6rem;
-      font-weight: 600;
-      letter-spacing: 0.12em;
-      color: var(--accent);
     }
 
     .dial-ring {
@@ -396,10 +379,7 @@
       <div id="dial" class="dial">
         <div id="dialRing" class="dial-ring"></div>
         <div class="dial-pointer" title="Reading position (9 o&rsquo;clock)"></div>
-        <div class="center-cap">
-          <div class="label">Vault</div>
-          <div class="code">R62&nbsp;&middot;&nbsp;L39&nbsp;&middot;&nbsp;R05</div>
-        </div>
+        <div class="center-cap"></div>
       </div>
     </div>
 
