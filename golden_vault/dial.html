@@ -146,19 +146,31 @@
       display: flex;
       align-items: center;
       gap: 8px;
+      min-height: 20px;
     }
 
-    .vault-ops-toggle input {
+    .vault-ops-toggle input[type="checkbox"] {
       flex: none;
       width: 18px;
       height: 18px;
+      min-width: 18px;
+      min-height: 18px;
+      margin: 0;
+      padding: 0;
       cursor: pointer;
+      accent-color: var(--accent);
     }
 
     .vault-ops-toggle label {
       cursor: pointer;
       font-size: 0.9rem;
+      line-height: 18px;
+      height: 18px;
+      margin: 0;
+      padding: 0;
       color: var(--fg);
+      display: inline-flex;
+      align-items: center;
     }
 
     .vault-ops-row {
