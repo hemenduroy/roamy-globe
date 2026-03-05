@@ -270,23 +270,28 @@
       letter-spacing: 0.06em;
     }
 
-    .vault-hits-log ul {
-      margin: 0;
-      padding-left: 1.2em;
-      list-style: none;
+    .vault-hits-rows {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-family: ui-monospace, monospace;
     }
 
-    .vault-hits-log li {
-      margin-bottom: 4px;
-    }
-
-    .vault-hits-log li .op {
-      color: var(--muted);
-    }
-
-    .vault-hits-log li .hit {
+    .vault-hits-row {
       color: var(--accent);
       font-weight: 700;
+      letter-spacing: 0.2em;
+    }
+
+    .vault-hits-row .vault-hits-label {
+      color: var(--muted);
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      margin-right: 8px;
+    }
+
+    .vault-hits-row span:not(.vault-hits-label) {
+      margin-right: 0.25em;
     }
 
     .slot {
@@ -441,7 +446,11 @@
     <div class="vault-result" id="vaultResult">At pointer: —</div>
     <div class="vault-hits-log" id="vaultHitsLog">
       <h4>Hits (each step)</h4>
-      <ul id="vaultHitsList"></ul>
+      <div class="vault-hits-rows" id="vaultHitsList">
+        <div class="vault-hits-row"><span class="vault-hits-label">Index</span> <span id="vaultHitsIndices"></span></div>
+        <div class="vault-hits-row"><span class="vault-hits-label">Numbers</span> <span id="vaultHitsNums"></span></div>
+        <div class="vault-hits-row"><span class="vault-hits-label">Letters</span> <span id="vaultHitsLetters"></span></div>
+      </div>
     </div>
     </div>
   </div>
@@ -682,7 +691,7 @@
         index++;
         setTimeout(() => {
           const slot = SLOTS_DATA[slotIndexAtPointer()];
-          hits.push({ op: dir + n, hit: formatHit(slot) });
+          hits.push({ op: dir + n, slot });
           updateResultDisplay();
           renderHitsLog(hits);
           runNext();
@@ -692,11 +701,22 @@
     }
 
     function renderHitsLog(hits) {
-      const list = document.getElementById('vaultHitsList');
-      if (!list) return;
-      list.innerHTML = hits.length
-        ? hits.map(({ op, hit }) => `<li><span class="op">${op}</span> → <span class="hit">${hit}</span></li>`).join('')
-        : '<li style="color: var(--muted)">No steps run yet.</li>';
+      const indicesEl = document.getElementById('vaultHitsIndices');
+      const numsEl = document.getElementById('vaultHitsNums');
+      const lettersEl = document.getElementById('vaultHitsLetters');
+      if (!indicesEl || !numsEl || !lettersEl) return;
+      if (hits.length === 0) {
+        indicesEl.textContent = '—';
+        numsEl.textContent = '—';
+        lettersEl.textContent = '—';
+        return;
+      }
+      const indices = hits.map(({ slot }) => slot && slot.type === 'tick' ? String(slot.index) : '·');
+      const nums = hits.map(({ slot }) => slot && slot.type === 'tick' ? String(slot.num) : '·');
+      const letters = hits.map(({ slot }) => slot && slot.type === 'tick' ? slot.letter : (slot && slot.type === 'star' ? '★' : '·'));
+      indicesEl.textContent = indices.join(' ');
+      numsEl.textContent = nums.join(' ');
+      lettersEl.textContent = letters.join(' ');
     }
 
     function renderDial() {
